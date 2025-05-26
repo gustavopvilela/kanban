@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateBoard } from '../features/boardsSlice';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { DndWrapper } from '../hooks/useDragAndDrop';
 import { v4 as uuid } from 'uuid';
 // Importações necessárias para @dnd-kit/core
 import {

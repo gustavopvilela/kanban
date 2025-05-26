@@ -8,18 +8,21 @@ import { v4 as uuid } from 'uuid';
 export default function Dashboard() {
     const dispatch = useDispatch();
     const boards = useSelector(state => state.boards.boards);
-    // Note: Using React state instead of localStorage for Claude.ai compatibility
-    const [stored, setStored] = React.useState(boards);
+    const [storedBoards, setStoredBoards] = useLocalStorage('kanban-boards', []);
 
-    // Initialize boards from stored data on component mount
+    // Initialize boards from localStorage on component mount
     useEffect(() => {
-        dispatch(setBoards(stored));
-    }, [dispatch, stored]);
+        if (storedBoards.length > 0 && boards.length === 0) {
+            dispatch(setBoards(storedBoards));
+        }
+    }, [dispatch, storedBoards, boards.length]);
 
-    // Update stored data whenever boards change
+    // Save boards to localStorage whenever they change
     useEffect(() => {
-        setStored(boards);
-    }, [boards, setStored]);
+        if (boards.length > 0) {
+            setStoredBoards(boards);
+        }
+    }, [boards, setStoredBoards]);
 
     const handleAddBoard = () => {
         const title = prompt('Nome do quadro:');
