@@ -1,0 +1,266 @@
+/* Estilos globais para a página do board */
+.board-page {
+    min-height: 100vh;
+    height: 100vh;
+    background-color: var(--background-color);
+    padding: 24px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Cabeçalho do board com navegação e título */
+.board-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding: 16px 0;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.board-header h2 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+    flex: 1;
+}
+
+/* Container principal das colunas - usa flexbox para layout horizontal */
+.columns-container {
+    display: flex;
+    gap: 24px; /* Espaçamento consistente entre colunas */
+    align-items: flex-start; /* Alinha colunas pelo topo */
+    overflow-x: auto; /* Permite scroll horizontal quando necessário */
+    padding-bottom: 16px;
+    min-height: 60vh;
+}
+
+/* Estilo individual de cada coluna */
+.column {
+    background-color: var(--surface-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    min-width: 300px; /* Largura mínima para manter proporção */
+    max-width: 350px; /* Largura máxima para evitar colunas muito largas */
+    flex-shrink: 0; /* Impede que as colunas encolham demais */
+    border: 2px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.column:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(2px);
+}
+
+/* Cabeçalho de cada coluna */
+.column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--column-header);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.column-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 18px;
+    font-weight: 600;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Agrupamento dos botões de ação da coluna */
+.column-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: 12px;
+}
+
+/* Container dos cards com scroll interno */
+.cards-container {
+    padding: 16px;
+    min-height: 200px;
+    max-height: 70vh;
+    overflow-y: auto;
+    transition: background-color 0.2s ease;
+}
+
+/* Efeito visual quando um card está sendo arrastado sobre a coluna */
+.cards-container.drag-over {
+    background-color: var(--dragging-hover);
+    border: 2px dashed var(--primary-color);
+    border-radius: var(--radius);
+}
+
+/* Estilo para coluna vazia */
+.empty-column {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+}
+
+.empty-column p {
+    margin: 0 0 8px 0;
+    font-style: italic;
+}
+
+.drop-hint {
+    color: var(--primary-color) !important;
+    font-weight: 600 !important;
+    font-style: normal !important;
+}
+
+/* Estilo individual de cada card */
+.card {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+    cursor: grab;
+    transition: all 0.2s ease;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+    border-color: var(--primary-color);
+}
+
+.card:active {
+    cursor: grabbing;
+}
+
+/* Conteúdo do texto do card */
+.card-content {
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+    margin-right: 24px; /* Espaço para o botão de remover */
+}
+
+/* Botão de remover card */
+.card-remove-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    border: none;
+    background-color: var(--danger-color);
+    color: white;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.card:hover .card-remove-btn {
+    opacity: 1;
+}
+
+.card-remove-btn:hover {
+    background-color: var(--danger-hover);
+    transform: scale(1.1);
+}
+
+/* Estado de board vazio */
+.empty-board {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-secondary);
+    width: 100%;
+}
+
+.empty-board p {
+    font-size: 18px;
+    margin-bottom: 24px;
+}
+
+/* Mensagens de erro */
+.error-message {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.error-message h2 {
+    color: var(--text-primary);
+    margin-bottom: 16px;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+    .board-page {
+        padding: 16px;
+    }
+
+    .board-header {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+    }
+
+    .board-header h2 {
+        font-size: 24px;
+    }
+
+    .columns-container {
+        gap: 16px;
+    }
+
+    .column {
+        min-width: 280px;
+        max-width: 320px;
+    }
+
+    .column-header {
+        padding: 12px 16px;
+    }
+
+    .cards-container {
+        max-height: 50vh;
+    }
+}
+
+/* Animações suaves para interações de drag */
+.card[data-dragging="true"] {
+    opacity: 0.5;
+    transform: rotate(5deg);
+    z-index: 1000;
+}
+
+/* Customização da barra de scroll */
+.cards-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.cards-container::-webkit-scrollbar-track {
+    background: var(--background-color);
+    border-radius: 3px;
+}
+
+.cards-container::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.cards-container::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
+}

@@ -1,350 +1,126 @@
-/*body {*/
-/*    margin: 0;*/
-/*    font-family: Arial, sans-serif;*/
-/*    background: #f0f2f5;*/
-/*    color: #333;*/
-/*}*/
-
-/*.app-container {*/
-/*    display: flex;*/
-/*    flex-direction: column;*/
-/*    height: 100vh;*/
-/*}*/
-
-/*.app-header {*/
-/*    display: flex;*/
-/*    justify-content: space-between;*/
-/*    align-items: center;*/
-/*    padding: 1rem;*/
-/*    background: #4f46e5;*/
-/*    color: white;*/
-/*}*/
-
-/*.app-main {*/
-/*    flex: 1;*/
-/*    padding: 1rem;*/
-/*    overflow: auto;*/
-/*}*/
-
-/*.btn-primary {*/
-/*    background: #4f46e5;*/
-/*    color: white;*/
-/*    border: none;*/
-/*    padding: 0.5rem 1rem;*/
-/*    cursor: pointer;*/
-/*    border-radius: 4px;*/
-/*    margin-bottom: 1rem;*/
-/*}*/
-
-/*.btn-secondary {*/
-/*    background: #e5e7eb;*/
-/*    color: #333;*/
-/*    border: none;*/
-/*    padding: 0.3rem 0.8rem;*/
-/*    cursor: pointer;*/
-/*    border-radius: 4px;*/
-/*    text-decoration: none;*/
-/*    display: inline-block;*/
-/*    margin: 0.5rem 0;*/
-/*}*/
-
-/*.dashboard .board-list {*/
-/*    display: flex;*/
-/*    gap: 1rem;*/
-/*    flex-wrap: wrap;*/
-/*}*/
-
-/*.board-card {*/
-/*    background: white;*/
-/*    padding: 1rem;*/
-/*    border-radius: 4px;*/
-/*    text-decoration: none;*/
-/*    color: #4f46e5;*/
-/*    box-shadow: 0 1px 3px rgba(0,0,0,0.1);*/
-/*    flex: 1 0 150px;*/
-/*    text-align: center;*/
-/*}*/
-
-/*.board-page .columns {*/
-/*    display: flex;*/
-/*    gap: 1rem;*/
-/*    overflow-x: auto;*/
-/*    padding: 1rem 0;*/
-/*}*/
-
-/*.column {*/
-/*    background: #fff;*/
-/*    border-radius: 4px;*/
-/*    padding: 0.5rem;*/
-/*    min-width: 200px;*/
-/*    box-shadow: 0 1px 3px rgba(0,0,0,0.1);*/
-/*}*/
-
-/*.column h3 {*/
-/*    margin-top: 0;*/
-/*}*/
-
-/*.cards {*/
-/*    display: flex;*/
-/*    flex-direction: column;*/
-/*    gap: 0.5rem;*/
-/*    margin-top: 0.5rem;*/
-/*}*/
-
-/*.card {*/
-/*    background: #e5e7eb;*/
-/*    padding: 0.5rem;*/
-/*    border-radius: 4px;*/
-/*    cursor: grab;*/
-/*}*/
-
-/*.theme-dark body {*/
-/*    background: #1f2937;*/
-/*    color: #f9fafb;*/
-/*}*/
-
-/*.theme-dark .app-header {*/
-/*    background: #111827;*/
-/*}*/
-
-/*.theme-dark .board-card {*/
-/*    background: #374151;*/
-/*    color: #f9fafb;*/
-/*}*/
-
-/*.theme-dark .column {*/
-/*    background: #374151;*/
-/*}*/
-
-/*.theme-dark .card {*/
-/*    background: #4b5563;*/
-/*    color: #f9fafb;*/
-/*}*/
-
-/* Reset básico e variáveis CSS para consistência */
 :root {
-    --primary-color: #3b82f6;
-    --primary-hover: #2563eb;
-    --secondary-color: #6b7280;
-    --secondary-hover: #4b5563;
-    --danger-color: #ef4444;
-    --danger-hover: #dc2626;
-    --success-color: #10b981;
-    --background-color: #f8fafc;
-    --surface-color: #ffffff;
-    --border-color: #e2e8f0;
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --radius: 8px;
     --radius-lg: 12px;
 }
 
-/* Estilos globais para a página do board */
-.board-page {
-    min-height: 100vh;
-    background-color: var(--background-color);
-    padding: 24px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* Cabeçalho do board com navegação e título */
-.board-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 32px;
-    padding: 16px 0;
-    border-bottom: 2px solid var(--border-color);
-}
-
-.board-header h2 {
+* {
     margin: 0;
-    color: var(--text-primary);
-    font-size: 28px;
-    font-weight: 700;
-    text-align: center;
-    flex: 1;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/* Container principal das colunas - usa flexbox para layout horizontal */
-.columns-container {
-    display: flex;
-    gap: 24px; /* Espaçamento consistente entre colunas */
-    align-items: flex-start; /* Alinha colunas pelo topo */
-    overflow-x: auto; /* Permite scroll horizontal quando necessário */
-    padding-bottom: 16px;
-    min-height: 60vh;
-}
-
-/* Estilo individual de cada coluna */
-.column {
-    background-color: var(--surface-color);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    min-width: 300px; /* Largura mínima para manter proporção */
-    max-width: 350px; /* Largura máxima para evitar colunas muito largas */
-    flex-shrink: 0; /* Impede que as colunas encolham demais */
-    border: 2px solid var(--border-color);
-    transition: all 0.2s ease;
-}
-
-.column:hover {
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-2px);
-}
-
-/* Cabeçalho de cada coluna */
-.column-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border-color);
-    background-color: #f1f5f9;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-}
-
-.column-header h3 {
+html, body {
     margin: 0;
-    color: var(--text-primary);
-    font-size: 18px;
-    font-weight: 600;
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
 }
 
-/* Agrupamento dos botões de ação da coluna */
-.column-actions {
-    display: flex;
-    gap: 8px;
-    margin-left: 12px;
+/* Paleta 3 – Light */
+html.light {
+    --primary-color: #7c3aed;       /* Violeta */
+    --primary-hover: #6d28d9;
+    --secondary-color: #9ca3af;     /* Cinza claro */
+    --secondary-hover: #6b7280;
+    --danger-color: #e11d48;        /* Magenta avermelhado */
+    --danger-hover: #be123c;
+    --success-color: #22c55e;       /* Verde lima */
+    --background-color: #f9fafb;    /* Quase branco */
+    --surface-color: #ffffff;       /* Branco puro */
+    --border-color: #e5e7eb;        /* Cinza bem claro */
+    --text-primary: #1f2937;        /* Cinza bem escuro */
+    --text-secondary: #4b5563;      /* Cinza médio */
+    --column-header: #f3f4f6;       /* Cinza quase branco */
+    --dragging-hover: #dbeafe;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
-/* Container dos cards com scroll interno */
-.cards-container {
-    padding: 16px;
-    min-height: 200px;
-    max-height: 70vh;
-    overflow-y: auto;
-    transition: background-color 0.2s ease;
+/* Paleta 3 – Dark */
+html.dark {
+    --primary-color: #a78bfa;      /* Roxo claro para dark */
+    --primary-hover: #8b5cf6;
+    --secondary-color: #6b7280;    /* Cinza médio */
+    --secondary-hover: #4b5563;
+    --danger-color: #f472b6;       /* Rosa vibrante */
+    --danger-hover: #ec4899;
+    --success-color: #4ade80;      /* Verde suave */
+    --background-color: #1e1e2e;   /* Azul-escuro com tom de roxo */
+    --surface-color: #2d2d3f;      /* Azul-marinho escuro */
+    --border-color: #3f3f52;       /* Cinza-azulado escuro */
+    --text-primary: #f9fafb;       /* Quase branco */
+    --text-secondary: #94a3b8;     /* Cinza-azulado claro */
+    --column-header: #1e1e2e;      /* Mesmo tom do background */
+    --dragging-hover: #E8DCF8FF;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
 }
 
-/* Efeito visual quando um card está sendo arrastado sobre a coluna */
-.cards-container.drag-over {
-    background-color: #dbeafe;
-    border: 2px dashed var(--primary-color);
-    border-radius: var(--radius);
-}
-
-/* Estilo para coluna vazia */
-.empty-column {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text-secondary);
-}
-
-.empty-column p {
-    margin: 0 0 8px 0;
-    font-style: italic;
-}
-
-.drop-hint {
-    color: var(--primary-color) !important;
-    font-weight: 600 !important;
-    font-style: normal !important;
-}
-
-/* Estilo individual de cada card */
-.card {
-    background-color: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-    margin-bottom: 12px;
-    padding: 16px;
-    box-shadow: var(--shadow-sm);
-    cursor: grab;
-    transition: all 0.2s ease;
+/* Botão container */
+.theme-toggle-btn {
     position: relative;
-    word-wrap: break-word;
-}
-
-.card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-1px);
-    border-color: var(--primary-color);
-}
-
-.card:active {
-    cursor: grabbing;
-}
-
-/* Conteúdo do texto do card */
-.card-content {
-    color: var(--text-primary);
-    font-size: 14px;
-    line-height: 1.5;
-    margin-right: 24px; /* Espaço para o botão de remover */
-}
-
-/* Botão de remover card */
-.card-remove-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 20px;
-    height: 20px;
+    width: 32px;
+    height: 32px;
+    perspective: 400px; /* perspectiva reduzida para o tamanho menor */
     border: none;
-    background-color: var(--danger-color);
-    color: white;
-    border-radius: 50%;
-    font-size: 14px;
-    font-weight: bold;
+    background: none;
     cursor: pointer;
+    padding: 0;
+}
+
+/* Contêiner 3D que gira */
+.theme-toggle-btn .flip-card {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    transition: transform 0.6s ease-in-out;
+    transform-style: preserve-3d;
+}
+
+/* Face frontal (sol) */
+.theme-toggle-btn .card-front {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: var(--primary-hover);
+    color: var(--surface-color);
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0;
-    transition: all 0.2s ease;
+    backface-visibility: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Face traseira (lua) */
+.theme-toggle-btn .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: var(--primary-hover);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backface-visibility: hidden;
+    transform: rotateY(180deg);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Ícones centralizados dentro das faces */
+.theme-toggle-btn .theme-icon {
+    font-size: 16px;
     line-height: 1;
 }
 
-.card:hover .card-remove-btn {
-    opacity: 1;
-}
-
-.card-remove-btn:hover {
-    background-color: var(--danger-hover);
-    transform: scale(1.1);
-}
-
-/* Estado de board vazio */
-.empty-board {
-    text-align: center;
-    padding: 80px 20px;
-    color: var(--text-secondary);
-    width: 100%;
-}
-
-.empty-board p {
-    font-size: 18px;
-    margin-bottom: 24px;
-}
-
-/* Mensagens de erro */
-.error-message {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-secondary);
-}
-
-.error-message h2 {
-    color: var(--text-primary);
-    margin-bottom: 16px;
+/* Quando o tema escuro está ativo, gira a "flip-card" */
+.theme-toggle-btn.dark-active .flip-card {
+    transform: rotateY(180deg);
 }
 
 /* Sistema de botões reutilizáveis */
@@ -386,7 +162,7 @@
 }
 
 .btn-secondary:hover {
-    background-color: #f1f5f9;
+    background-color: var(--primary-color);
     border-color: var(--secondary-color);
     transform: translateY(-1px);
     box-shadow: var(--shadow-sm);
@@ -415,370 +191,4 @@
     padding: 8px 12px;
     font-size: 12px;
     font-weight: 500;
-}
-
-/* Responsividade para telas menores */
-@media (max-width: 768px) {
-    .board-page {
-        padding: 16px;
-    }
-
-    .board-header {
-        flex-direction: column;
-        gap: 16px;
-        text-align: center;
-    }
-
-    .board-header h2 {
-        font-size: 24px;
-    }
-
-    .columns-container {
-        gap: 16px;
-    }
-
-    .column {
-        min-width: 280px;
-        max-width: 320px;
-    }
-
-    .column-header {
-        padding: 12px 16px;
-    }
-
-    .cards-container {
-        max-height: 50vh;
-    }
-}
-
-/* Animações suaves para interações de drag */
-.card[data-dragging="true"] {
-    opacity: 0.5;
-    transform: rotate(5deg);
-    z-index: 1000;
-}
-
-/* Customização da barra de scroll */
-.cards-container::-webkit-scrollbar {
-    width: 6px;
-}
-
-.cards-container::-webkit-scrollbar-track {
-    background: var(--background-color);
-    border-radius: 3px;
-}
-
-.cards-container::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 3px;
-}
-
-.cards-container::-webkit-scrollbar-thumb:hover {
-    background: var(--secondary-color);
-}
-
-.dashboard-container {
-    min-height: 100vh;
-    background-color: var(--background-color);
-    padding: 32px 24px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* Dashboard header section - contains title, subtitle, and primary action button */
-.dashboard-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 48px;
-    padding-bottom: 24px;
-    border-bottom: 2px solid var(--border-color);
-    gap: 32px;
-}
-
-/* Title section grouping for better visual hierarchy */
-.dashboard-title-section {
-    flex: 1;
-}
-
-/* Main dashboard title - uses larger font for hierarchy */
-.dashboard-title {
-    margin: 0 0 8px 0;
-    color: var(--text-primary);
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 1.2;
-}
-
-/* Subtitle provides context and guidance to users */
-.dashboard-subtitle {
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 16px;
-    line-height: 1.5;
-    max-width: 500px;
-}
-
-/* Primary action button for creating new boards */
-.dashboard-add-btn {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 16px 24px;
-    border-radius: var(--radius);
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    white-space: nowrap;
-    box-shadow: var(--shadow-md);
-}
-
-.dashboard-add-btn:hover {
-    background-color: var(--primary-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-}
-
-.dashboard-add-btn:active {
-    transform: translateY(0);
-}
-
-/* Icon inside the add button for visual emphasis */
-.add-icon {
-    font-size: 20px;
-    font-weight: bold;
-    line-height: 1;
-}
-
-/* Main content area that adapts to different states */
-.dashboard-content {
-    min-height: 400px;
-}
-
-/* Grid layout for board cards - responsive and flexible */
-.dashboard-boards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 24px;
-    align-items: start;
-}
-
-/* Individual board card - clickable and interactive */
-.dashboard-board-card {
-    background-color: var(--surface-color);
-    border: 2px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    text-decoration: none;
-    color: inherit;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.2s ease;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: relative;
-    overflow: hidden;
-}
-
-.dashboard-board-card:hover {
-    border-color: var(--primary-color);
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-4px);
-}
-
-.dashboard-board-card:active {
-    transform: translateY(-2px);
-}
-
-/* Content area within each board card */
-.board-card-content {
-    flex: 1;
-    min-width: 0; /* Allows text truncation */
-}
-
-/* Icon representing each board */
-.board-card-icon {
-    font-size: 32px;
-    margin-bottom: 12px;
-    opacity: 0.8;
-}
-
-/* Board title within each card */
-.board-card-title {
-    margin: 0 0 12px 0;
-    color: var(--text-primary);
-    font-size: 20px;
-    font-weight: 600;
-    line-height: 1.3;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* Metadata section showing board statistics */
-.board-card-meta {
-    display: flex;
-    gap: 16px;
-    font-size: 14px;
-    color: var(--text-secondary);
-}
-
-.board-columns-count,
-.board-cards-count {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-/* Arrow indicator for navigation */
-.board-card-arrow {
-    font-size: 20px;
-    color: var(--primary-color);
-    opacity: 0;
-    transition: all 0.2s ease;
-    transform: translateX(-8px);
-}
-
-.dashboard-board-card:hover .board-card-arrow {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-/* Empty state styling when no boards exist */
-.dashboard-empty-state {
-    text-align: center;
-    padding: 80px 24px;
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-/* Large icon for empty state visual impact */
-.empty-state-icon {
-    font-size: 64px;
-    margin-bottom: 24px;
-    opacity: 0.6;
-}
-
-/* Empty state title */
-.empty-state-title {
-    margin: 0 0 16px 0;
-    color: var(--text-primary);
-    font-size: 24px;
-    font-weight: 600;
-}
-
-/* Descriptive text explaining the empty state */
-.empty-state-description {
-    margin: 0 0 32px 0;
-    color: var(--text-secondary);
-    font-size: 16px;
-    line-height: 1.6;
-}
-
-/* Call-to-action button in empty state */
-.empty-state-btn {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 16px 32px;
-    border-radius: var(--radius);
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: var(--shadow-md);
-}
-
-.empty-state-btn:hover {
-    background-color: var(--primary-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-}
-
-/* Responsive design for tablet screens */
-@media (max-width: 1024px) {
-    .dashboard-boards-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
-    }
-
-    .dashboard-header {
-        gap: 24px;
-    }
-
-    .dashboard-title {
-        font-size: 28px;
-    }
-}
-
-/* Responsive design for mobile screens */
-@media (max-width: 768px) {
-    .dashboard-container {
-        padding: 24px 16px;
-    }
-
-    .dashboard-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 20px;
-        text-align: center;
-    }
-
-    .dashboard-title {
-        font-size: 24px;
-    }
-
-    .dashboard-subtitle {
-        font-size: 15px;
-    }
-
-    .dashboard-add-btn {
-        align-self: center;
-        width: fit-content;
-    }
-
-    .dashboard-boards-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-
-    .dashboard-board-card {
-        padding: 20px;
-    }
-
-    .board-card-title {
-        font-size: 18px;
-    }
-
-    .empty-state-icon {
-        font-size: 48px;
-    }
-
-    .empty-state-title {
-        font-size: 20px;
-    }
-
-    .empty-state-description {
-        font-size: 15px;
-    }
-}
-
-/* Additional animations for enhanced user experience */
-@keyframes slideInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.dashboard-board-card {
-    animation: slideInUp 0.3s ease forwards;
 }

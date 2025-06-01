@@ -1,221 +1,84 @@
 import React, { useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateBoard } from '../features/boardsSlice';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { updateBoard } from '../../features/boardsSlice';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { v4 as uuid } from 'uuid';
-// Importações necessárias para @dnd-kit/core
+import './BoardPage.css';
+
+// DnD Kit
 import {
-    useDroppable,
     DndContext,
     closestCenter,
     PointerSensor,
     useSensor,
     useSensors
 } from '@dnd-kit/core';
+
+import DroppableColumn from './components/DroppableColumn';
 import {
-    SortableContext,
-    verticalListSortingStrategy,
-    useSortable
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-
-// Componente para cada card individual que pode ser arrastado
-function DraggableCard({ card, columnId, onRemove }) {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({
-        id: card.id,
-        data: {
-            type: 'card',
-            card,
-            columnId
-        }
-    });
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.5 : 1,
-    };
-
-    return (
-        <div
-            ref={setNodeRef}
-            style={style}
-            {...attributes}
-            {...listeners}
-            className="card"
-            title={card.text}
-        >
-            <div className="card-content">
-                {card.text || 'Card sem texto'}
-            </div>
-            <button
-                onClick={(e) => {
-                    e.stopPropagation(); // Evita que o drag seja ativado
-                    onRemove();
-                }}
-                className="card-remove-btn"
-                title="Remover card"
-            >
-                ×
-            </button>
-        </div>
-    );
-}
-
-// Componente para cada coluna que pode receber cards
-function DroppableColumn({ column, onAddCard, onRemoveColumn, onRemoveCard }) {
-    const {
-        setNodeRef,
-        isOver,
-    } = useDroppable({
-        id: column.id,
-        data: {
-            type: 'column',
-            column
-        }
-    });
-
-    const columnCards = column.cards || [];
-    const columnTitle = column.title || 'Coluna sem título';
-
-    return (
-        <div className="column">
-            {/* Cabeçalho da coluna */}
-            <div className="column-header">
-                <h3 title={columnTitle}>{columnTitle}</h3>
-                <div className="column-actions">
-                    <button
-                        onClick={() => onAddCard(column.id)}
-                        className="btn-secondary btn-small"
-                        title="Adicionar novo card"
-                    >
-                        + Card
-                    </button>
-                    <button
-                        onClick={() => onRemoveColumn(column.id)}
-                        className="btn-danger btn-small"
-                        title="Remover coluna"
-                    >
-                        ×
-                    </button>
-                </div>
-            </div>
-
-            {/* Área de drop para os cards */}
-            <div
-                ref={setNodeRef}
-                className={`cards-container ${isOver ? 'drag-over' : ''}`}
-            >
-                {columnCards.length === 0 ? (
-                    <div className="empty-column">
-                        <p>Nenhum card ainda</p>
-                        {isOver && <p className="drop-hint">Solte o card aqui</p>}
-                    </div>
-                ) : (
-                    <SortableContext
-                        items={columnCards.map(card => card.id)}
-                        strategy={verticalListSortingStrategy}
-                    >
-                        {columnCards.map((card) => (
-                            <DraggableCard
-                                key={card.id}
-                                card={card}
-                                columnId={column.id}
-                                onRemove={() => onRemoveCard(column.id, card.id)}
-                            />
-                        ))}
-                    </SortableContext>
-                )}
-            </div>
-        </div>
-    );
-}
+    IconArrowLeft,
+    IconPlus
+} from "@tabler/icons-react";
 
 export default function BoardPage() {
     const { id } = useParams();
     const dispatch = useDispatch();
 
-    // TODOS OS HOOKS DEVEM ESTAR NO TOPO, ANTES DE QUALQUER LÓGICA CONDICIONAL
-
-    // Hooks do Redux - sempre executados
+    // ----- HOOKS DO REDUX -----
     const board = useSelector(state =>
         state.boards.boards.find(b => b.id === id)
     );
     const allBoards = useSelector(state => state.boards.boards);
 
-    // Hook customizado para localStorage - sempre executado
+    // ----- HOOK CUSTOMIZADO PARA LOCALSTORAGE -----
     const [, setStored] = useLocalStorage('kanban_boards', allBoards);
 
-    // Configuração dos sensores para @dnd-kit
+    // ----- SENSORES DO DND-KIT -----
     const sensors = useSensors(
         useSensor(PointerSensor, {
-            activationConstraint: {
-                distance: 8, // Inicia drag só após 8px de movimento
-            },
+            activationConstraint: { distance: 8 }
         })
     );
 
-    // Função auxiliar para atualizar o board no Redux
+    // ----- UPDATE NO REDUX -----
     const updateBoardData = useCallback((updatedBoard) => {
         if (!updatedBoard || !updatedBoard.id) {
             console.error('Tentativa de atualizar board inválido:', updatedBoard);
             return;
         }
-
         dispatch(updateBoard(updatedBoard));
     }, [dispatch]);
 
-    // Memoiza a função de sincronização para evitar re-renders desnecessários
+    // ----- SINCRONIZAÇÃO COM LOCALSTORAGE -----
     const syncToStorage = useCallback(() => {
         setStored(allBoards);
     }, [allBoards, setStored]);
 
-    // Função para adicionar uma nova coluna
+    // ----- ADD / REMOVE COLUMNS & CARDS -----
+
     const handleAddColumn = useCallback(() => {
         if (!board) return;
-
         const title = prompt('Digite o título da nova coluna:');
-
-        if (!title || title.trim() === '') {
-            return;
-        }
-
+        if (!title || title.trim() === '') return;
         const newColumn = {
             id: uuid(),
             title: title.trim(),
             cards: []
         };
-
-        const currentColumns = board.columns || [];
-
         const updatedBoard = {
             ...board,
-            columns: [...currentColumns, newColumn],
+            columns: [...(board.columns || []), newColumn]
         };
-
         updateBoardData(updatedBoard);
     }, [board, updateBoardData]);
 
-    // Função para adicionar um novo card em uma coluna específica
     const handleAddCard = useCallback((columnId) => {
         if (!board) return;
-
         const text = prompt('Digite o texto do novo card:');
-
-        if (!text || text.trim() === '') {
-            return;
-        }
+        if (!text || text.trim() === '') return;
 
         const currentColumns = board.columns || [];
-
         const targetColumn = currentColumns.find(col => col.id === columnId);
         if (!targetColumn) {
             console.error('Coluna não encontrada:', columnId);
@@ -229,88 +92,58 @@ export default function BoardPage() {
 
         const updatedColumns = currentColumns.map(col =>
             col.id === columnId
-                ? {
-                    ...col,
-                    cards: [...(col.cards || []), newCard]
-                }
+                ? { ...col, cards: [...(col.cards || []), newCard] }
                 : col
         );
 
-        const updatedBoard = {
-            ...board,
-            columns: updatedColumns,
-        };
-
+        const updatedBoard = { ...board, columns: updatedColumns };
         updateBoardData(updatedBoard);
     }, [board, updateBoardData]);
 
-    // Função para remover um card
     const handleRemoveCard = useCallback((columnId, cardId) => {
         if (!board) return;
-
         const confirmed = window.confirm('Tem certeza que deseja remover este card?');
         if (!confirmed) return;
 
         const currentColumns = board.columns || [];
-
         const updatedColumns = currentColumns.map(col =>
             col.id === columnId
-                ? {
-                    ...col,
-                    cards: (col.cards || []).filter(card => card.id !== cardId)
-                }
+                ? { ...col, cards: (col.cards || []).filter(card => card.id !== cardId) }
                 : col
         );
 
-        const updatedBoard = {
-            ...board,
-            columns: updatedColumns,
-        };
-
+        const updatedBoard = { ...board, columns: updatedColumns };
         updateBoardData(updatedBoard);
     }, [board, updateBoardData]);
 
-    // Função para remover uma coluna inteira
     const handleRemoveColumn = useCallback((columnId) => {
         if (!board) return;
+        const columnObj = (board.columns || []).find(col => col.id === columnId);
+        if (!columnObj) return;
 
-        const column = (board.columns || []).find(col => col.id === columnId);
-        if (!column) return;
-
-        const cardCount = (column.cards || []).length;
+        const cardCount = (columnObj.cards || []).length;
         const message = cardCount > 0
-            ? `Tem certeza que deseja remover a coluna "${column.title}"? Isso também removerá ${cardCount} card(s).`
-            : `Tem certeza que deseja remover a coluna "${column.title}"?`;
+            ? `Tem certeza que deseja remover a coluna "${columnObj.title}"? Isso também removerá ${cardCount} card(s).`
+            : `Tem certeza que deseja remover a coluna "${columnObj.title}"?`;
 
         const confirmed = window.confirm(message);
         if (!confirmed) return;
 
         const updatedColumns = (board.columns || []).filter(col => col.id !== columnId);
-
-        const updatedBoard = {
-            ...board,
-            columns: updatedColumns,
-        };
-
+        const updatedBoard = { ...board, columns: updatedColumns };
         updateBoardData(updatedBoard);
     }, [board, updateBoardData]);
 
-    // Lógica de drag-and-drop atualizada para @dnd-kit
+    // ----- DRAG-AND-DROP (DnD) -----
+
     const handleDragEnd = useCallback((event) => {
         if (!board) return;
-
         const { active, over } = event;
-
-        // Se não houve drop válido, aborta
         if (!over) return;
-
-        // Se dropped no mesmo lugar, não faz nada
         if (active.id === over.id) return;
 
         const activeData = active.data.current;
         const overData = over.data.current;
-
-        // Validação básica dos dados
         if (!activeData || activeData.type !== 'card') {
             console.error('Dados de drag inválidos:', activeData);
             return;
@@ -319,23 +152,20 @@ export default function BoardPage() {
         const draggedCard = activeData.card;
         const sourceColumnId = activeData.columnId;
 
-        // Determina a coluna de destino
+        // Determinar destino e índice
         let targetColumnId;
         let targetIndex;
 
         if (overData && overData.type === 'column') {
-            // Dropped diretamente em uma coluna
             targetColumnId = overData.column.id;
-            targetIndex = (overData.column.cards || []).length; // Adiciona no final
+            targetIndex = (overData.column.cards || []).length;
         } else if (overData && overData.type === 'card') {
-            // Dropped em cima de outro card
             targetColumnId = overData.columnId;
             const targetColumn = (board.columns || []).find(col => col.id === targetColumnId);
-            if (targetColumn) {
-                targetIndex = (targetColumn.cards || []).findIndex(card => card.id === over.id);
-            }
+            targetIndex = targetColumn
+                ? (targetColumn.cards || []).findIndex(card => card.id === over.id)
+                : 0;
         } else {
-            // Fallback: tenta usar o ID do over como coluna
             targetColumnId = over.id;
             const targetColumn = (board.columns || []).find(col => col.id === targetColumnId);
             if (targetColumn) {
@@ -347,27 +177,21 @@ export default function BoardPage() {
         }
 
         const currentColumns = board.columns || [];
-
-        // Verifica se as colunas existem
         const sourceColumn = currentColumns.find(col => col.id === sourceColumnId);
         const targetColumn = currentColumns.find(col => col.id === targetColumnId);
-
         if (!sourceColumn || !targetColumn) {
             console.error('Coluna não encontrada:', { sourceColumnId, targetColumnId });
             return;
         }
 
-        // Se é a mesma coluna, reordena
+        // Se for mesma coluna, apenas reordena
         if (sourceColumnId === targetColumnId) {
             const columnCards = [...(sourceColumn.cards || [])];
             const sourceIndex = columnCards.findIndex(card => card.id === draggedCard.id);
-
             if (sourceIndex === -1) {
                 console.error('Card não encontrado na coluna de origem');
                 return;
             }
-
-            // Remove da posição original e insere na nova posição
             const [removed] = columnCards.splice(sourceIndex, 1);
             columnCards.splice(targetIndex, 0, removed);
 
@@ -376,26 +200,18 @@ export default function BoardPage() {
                     ? { ...col, cards: columnCards }
                     : col
             );
-
-            updateBoardData({
-                ...board,
-                columns: updatedColumns,
-            });
+            updateBoardData({ ...board, columns: updatedColumns });
         } else {
-            // Move entre colunas diferentes
+            // Move de uma coluna para outra
             const sourceCards = [...(sourceColumn.cards || [])];
             const targetCards = [...(targetColumn.cards || [])];
 
-            // Remove da coluna de origem
             const sourceIndex = sourceCards.findIndex(card => card.id === draggedCard.id);
             if (sourceIndex === -1) {
                 console.error('Card não encontrado na coluna de origem');
                 return;
             }
-
             const [removed] = sourceCards.splice(sourceIndex, 1);
-
-            // Adiciona na coluna de destino
             targetCards.splice(targetIndex, 0, removed);
 
             const updatedColumns = currentColumns.map(col => {
@@ -408,24 +224,21 @@ export default function BoardPage() {
                 return col;
             });
 
-            updateBoardData({
-                ...board,
-                columns: updatedColumns,
-            });
+            updateBoardData({ ...board, columns: updatedColumns });
         }
     }, [board, updateBoardData]);
 
-    // useEffect para sincronização com localStorage
+    // ----- useEffect para sincronizar no localStorage sempre que allBoards mudar -----
     useEffect(() => {
         syncToStorage();
     }, [allBoards, syncToStorage]);
 
-    // Validação condicional - só depois de todos os hooks
+    // ----- Se o board não existir (URL inválida) -----
     if (!board) {
         return (
             <div className="board-page">
                 <Link to="/" className="btn-secondary">
-                    ← Voltar para Home
+                    <IconArrowLeft stroke={2} width={18} height={18} /> Página inicial
                 </Link>
                 <div className="error-message">
                     <h2>Board não encontrado</h2>
@@ -435,16 +248,16 @@ export default function BoardPage() {
         );
     }
 
-    // Dados para renderização
+    // ----- Dados para renderizar -----
     const boardColumns = board.columns || [];
     const boardTitle = board.title || 'Board sem título';
 
     return (
         <div className="board-page">
-            {/* Cabeçalho com navegação */}
+            {/* Cabeçalho */}
             <div className="board-header">
                 <Link to="/" className="btn-secondary">
-                    ← Voltar para Home
+                    <IconArrowLeft stroke={2} width={18} height={18} /> Página inicial
                 </Link>
                 <h2>{boardTitle}</h2>
                 <button
@@ -452,11 +265,11 @@ export default function BoardPage() {
                     className="btn-primary"
                     title="Adicionar nova coluna"
                 >
-                    + Nova Coluna
+                    <IconPlus /> Nova coluna
                 </button>
             </div>
 
-            {/* Context de drag-and-drop do @dnd-kit */}
+            {/* Contexto do DnD Kit */}
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
