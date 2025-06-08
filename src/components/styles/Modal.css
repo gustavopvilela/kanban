@@ -1,0 +1,97 @@
+/* Modal.css */
+.modal-overlay {
+    position: fixed; /* Cobre a tela inteira */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Fundo semi-transparente - Mantido pois não há var global direta */
+    display: flex;
+    align-items: center; /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
+    z-index: 1000; /* Garante que fique acima de outros conteúdos */
+}
+
+.modal-content {
+    background-color: var(--surface-color);
+    padding: 25px 35px;
+    border-radius: var(--radius-lg); /* Usando --radius-lg para um visual mais destacado */
+    box-shadow: var(--shadow-lg);
+    min-width: 320px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    animation: fadeInModal 0.3s ease-out;
+}
+
+@keyframes fadeInModal {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 1.8rem;
+    font-weight: bold;
+    line-height: 1;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s ease;
+}
+
+.modal-close-button:hover {
+    color: var(--text-primary);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.modal-content form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.modal-content form input[type="text"] {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 25px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    box-sizing: border-box; /* Já coberto pelo global '*' mas bom ter aqui por especificidade */
+    font-size: 1rem;
+    background-color: var(--surface-color); /* Para garantir que o input use a cor de superfície */
+    color: var(--text-primary); /* Para garantir que o texto do input seja legível */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-content form input[type="text"]:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--surface-color), 0 0 0 4px var(--primary-color); /* Estilo de anel de foco comum */
+    outline: none;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+}

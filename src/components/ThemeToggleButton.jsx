@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { ThemeContext } from '../context/ThemeContext.jsx';
 import { IconMoon, IconSun } from '@tabler/icons-react';
+import './styles/ThemeToggleButton.css'
 
 const ThemeToggleButton = () => {
     const { theme, toggleTheme } = useContext(ThemeContext);

@@ -7,6 +7,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 html, body {
@@ -59,69 +60,7 @@ html.dark {
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
 }
 
-/* Botão container */
-.theme-toggle-btn {
-    position: relative;
-    width: 32px;
-    height: 32px;
-    perspective: 400px; /* perspectiva reduzida para o tamanho menor */
-    border: none;
-    background: none;
-    cursor: pointer;
-    padding: 0;
-}
 
-/* Contêiner 3D que gira */
-.theme-toggle-btn .flip-card {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    transition: transform 0.6s ease-in-out;
-    transform-style: preserve-3d;
-}
-
-/* Face frontal (sol) */
-.theme-toggle-btn .card-front {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background-color: var(--primary-hover);
-    color: var(--surface-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    backface-visibility: hidden;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* Face traseira (lua) */
-.theme-toggle-btn .card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background-color: var(--primary-hover);
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    backface-visibility: hidden;
-    transform: rotateY(180deg);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* Ícones centralizados dentro das faces */
-.theme-toggle-btn .theme-icon {
-    font-size: 16px;
-    line-height: 1;
-}
-
-/* Quando o tema escuro está ativo, gira a "flip-card" */
-.theme-toggle-btn.dark-active .flip-card {
-    transform: rotateY(180deg);
-}
 
 /* Sistema de botões reutilizáveis */
 .btn-primary {
