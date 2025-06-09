@@ -82,25 +82,28 @@ export default function Dashboard() {
             </div>
 
             <Modal isOpen={isModalOpen} onClose={closeModal} >
-                <h2>Criar novo quadro</h2>
+                <h2 className="modal-title">Criar novo quadro</h2>
+
+                <div className="modal-divider"></div>
+
                 <form onSubmit={handleModalSubmit}>
-                    <label htmlFor="boardTitle">Nome do quadro:</label>
+                    <label htmlFor="boardTitle">Título</label>
                     <input
                         type="text"
                         id="boardTitle"
                         value={newBoardTitle}
-                        placeholder="Ex.: Trabalho final do semestre"
+                        placeholder="Trabalho do final do semestre"
                         onChange={(e) => setNewBoardTitle(e.target.value)}
                         required
                         autoFocus
                     />
 
-                    <label htmlFor="boardDescription">Descrição:</label>
+                    <label htmlFor="boardDescription">Descrição</label>
                     <input
                         type="text"
                         id="boardDescription"
                         value={newBoardDescription}
-                        placeholder="Ex.: Planejamento"
+                        placeholder="Planejamento das tarefas de Front-End"
                         onChange={(e) => setNewBoardDescription(e.target.value)}
                     />
 

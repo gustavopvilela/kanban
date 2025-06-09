@@ -278,7 +278,7 @@ export default function BoardPage() {
                 <div className="columns-container">
                     {boardColumns.length === 0 ? (
                         <div className="empty-board">
-                            <p>Este board ainda não tem colunas.</p>
+                            <p>Este quadro ainda não tem colunas.</p>
                             <button onClick={handleAddColumn} className="btn-primary">
                                 Criar primeira coluna
                             </button>

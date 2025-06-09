@@ -203,6 +203,15 @@
     color: var(--text-secondary);
 }
 
+.modal-divider {
+    height: 1px;
+    background-color: var(--secondary-color);
+    margin: 24px 0 32px 0;
+}
+
+.modal-title {
+    margin: 0 !important;
+}
 
 /* Metadata section showing board statistics */
 .board-card-meta {

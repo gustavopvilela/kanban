@@ -139,24 +139,27 @@ export default function BoardCard({ board }) {
 
             {/* Modal para editar. */}
             <Modal isOpen={isEditModalOpen} onClose={closeEditModal} >
-                <h2>Editar quadro <i>{board.title}</i></h2>
+                <h2 className="modal-title">Editar quadro <i>{board.title}</i></h2>
+
+                <div className="modal-divider"></div>
+
                 <form onSubmit={edit}>
-                    <label htmlFor="boardTitle">Novo nome do quadro:</label>
+                    <label htmlFor="boardTitle">Novo título</label>
                     <input
                         type="text"
                         id="boardTitle"
                         value={newBoardTitle}
-                        placeholder="Ex.: Trabalho final do semestre"
+                        placeholder="Trabalho final do semestre"
                         onChange={(e) => setNewBoardTitle(e.target.value)}
                         autoFocus
                     />
 
-                    <label htmlFor="boardDescription">Nova descrição:</label>
+                    <label htmlFor="boardDescription">Nova descrição</label>
                     <input
                         type="text"
                         id="boardDescription"
                         value={newBoardDescription}
-                        placeholder="Ex.: Planejamento"
+                        placeholder="Planejamento das tarefas de Front-End"
                         onChange={(e) => setNewBoardDescription(e.target.value)}
                     />
 
@@ -169,7 +172,10 @@ export default function BoardCard({ board }) {
 
             {/* Modal para deletar */}
             <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
-                <h2>Deletar quadro <i>{board.title}?</i></h2>
+                <h2 className="modal-title">Deletar quadro <i>{board.title}?</i></h2>
+
+                <div className="modal-divider"></div>
+
                 <form onSubmit={del} className="delete-modal-form">
                     <div className="delete-modal-icon">
                         <IconAlertCircle stroke={2} size={64} />
