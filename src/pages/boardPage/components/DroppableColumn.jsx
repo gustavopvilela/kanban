@@ -3,14 +3,15 @@ import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import DraggableCard from './DraggableCard';
 import EmptyColumnMessage from './EmptyColumnMessage';
-import {IconPlus, IconTrash} from "@tabler/icons-react";
+import { IconPlus, IconTrash } from "@tabler/icons-react";
 
 export default function DroppableColumn({
-                                            column,
-                                            onAddCard,
-                                            onRemoveColumn,
-                                            onRemoveCard
-                                        }) {
+    column,
+    cards, // Recebemos os cartões já filtrados
+    onAddCard,
+    onEditCard, // Nova prop para editar
+    onRemoveColumn
+}) {
     const { setNodeRef, isOver } = useDroppable({
         id: column.id,
         data: {
@@ -19,7 +20,6 @@ export default function DroppableColumn({
         }
     });
 
-    const columnCards = column.cards || [];
     const columnTitle = column.title || 'Coluna sem título';
 
     return (
@@ -29,7 +29,7 @@ export default function DroppableColumn({
                 <h3 title={columnTitle}>{columnTitle}</h3>
                 <div className="column-actions">
                     <button
-                        onClick={() => onAddCard(column.id)}
+                        onClick={() => onAddCard(column.id)} // Agora abre o modal de criação
                         className="btn-secondary btn-small"
                         title="Adicionar novo cartão"
                     >
@@ -40,7 +40,7 @@ export default function DroppableColumn({
                         className="btn-danger btn-small"
                         title="Remover coluna"
                     >
-                        <IconTrash stroke={2} width={16} height={16}/>
+                        <IconTrash stroke={2} width={16} height={16} />
                     </button>
                 </div>
             </div>
@@ -50,21 +50,22 @@ export default function DroppableColumn({
                 ref={setNodeRef}
                 className={`cards-container ${isOver ? 'drag-over' : ''}`}
             >
-                {columnCards.length === 0 ? (
+                {cards.length === 0 ? (
                     <div className="empty-column">
                         <EmptyColumnMessage isOver={isOver} />
                     </div>
                 ) : (
                     <SortableContext
-                        items={columnCards.map(card => card.id)}
+                        items={cards.map(card => card.id)}
                         strategy={verticalListSortingStrategy}
                     >
-                        {columnCards.map(card => (
+                        {cards.map(card => (
                             <DraggableCard
                                 key={card.id}
                                 card={card}
                                 columnId={column.id}
-                                onRemove={() => onRemoveCard(column.id, card.id)}
+                                // Passa a função para abrir o modal de edição
+                                onEdit={() => onEditCard(card, column.id)}
                             />
                         ))}
                     </SortableContext>

@@ -1,14 +1,22 @@
-import React, { useContext } from 'react';
-import { ThemeContext } from '../context/ThemeContext.jsx';
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { toggleTheme } from '../features/themeSlice'; // Importa a ação do Redux
 import { IconMoon, IconSun } from '@tabler/icons-react';
-import './styles/ThemeToggleButton.css'
+import './styles/ThemeToggleButton.css';
 
 const ThemeToggleButton = () => {
-    const { theme, toggleTheme } = useContext(ThemeContext);
+    // Lê o tema diretamente do estado do Redux
+    const theme = useSelector((state) => state.theme.theme);
+    const dispatch = useDispatch();
+
+    // Função para despachar a ação de troca de tema
+    const handleToggleTheme = () => {
+        dispatch(toggleTheme());
+    };
 
     return (
         <button
-            onClick={toggleTheme}
+            onClick={handleToggleTheme}
             className={`theme-toggle-btn ${theme === 'light' ? '' : 'dark-active'}`}
         >
             <div className="flip-card">
@@ -20,7 +28,6 @@ const ThemeToggleButton = () => {
                 </div>
             </div>
         </button>
-
     );
 };
 

@@ -263,3 +263,25 @@
 .cards-container::-webkit-scrollbar-thumb:hover {
     background: var(--secondary-color);
 }
+
+.archive-view-header {
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border-radius: var(--border-radius);
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    border: 1px solid var(--border-color);
+    text-align: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.archive-view-header h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+}
+
+.archive-view-header p {
+    margin: 0;
+    font-size: 0.9rem;
+}

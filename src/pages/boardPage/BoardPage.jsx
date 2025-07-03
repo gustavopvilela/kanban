@@ -1,239 +1,122 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateBoard } from '../../features/boardsSlice';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { v4 as uuid } from 'uuid';
 import './BoardPage.css';
 
-// DnD Kit
+// Ações do Redux
 import {
-    DndContext,
-    closestCenter,
-    PointerSensor,
-    useSensor,
-    useSensors
-} from '@dnd-kit/core';
+    addColumn,
+    deleteColumn,
+    moveCard,
+} from '../../features/boardsSlice';
 
+// Componentes
 import DroppableColumn from './components/DroppableColumn';
-import {
-    IconArrowLeft,
-    IconPlus
-} from "@tabler/icons-react";
+import CardModal from './components/CardModal';
+
+// DnD Kit
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+
+// Ícones
+import { IconArrowLeft, IconPlus, IconArchive } from "@tabler/icons-react";
 
 export default function BoardPage() {
-    const { id } = useParams();
+    const { id: boardId } = useParams();
     const dispatch = useDispatch();
 
-    // ----- HOOKS DO REDUX -----
     const board = useSelector(state =>
-        state.boards.boards.find(b => b.id === id)
+        state.boards.boards.find(b => b.id === boardId)
     );
-    const allBoards = useSelector(state => state.boards.boards);
+    
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingCard, setEditingCard] = useState(null);
+    const [activeColumnId, setActiveColumnId] = useState(null);
 
-    // ----- HOOK CUSTOMIZADO PARA LOCALSTORAGE -----
-    const [, setStored] = useLocalStorage('kanban_boards', allBoards);
+    const [showArchived, setShowArchived] = useState(false);
 
-    // ----- SENSORES DO DND-KIT -----
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: { distance: 8 }
         })
     );
+    
+    const handleOpenAddCardModal = (columnId) => {
+        setEditingCard(null);
+        setActiveColumnId(columnId);
+        setIsModalOpen(true);
+    };
 
-    // ----- UPDATE NO REDUX -----
-    const updateBoardData = useCallback((updatedBoard) => {
-        if (!updatedBoard || !updatedBoard.id) {
-            console.error('Tentativa de atualizar board inválido:', updatedBoard);
-            return;
-        }
-        dispatch(updateBoard(updatedBoard));
-    }, [dispatch]);
+    const handleOpenEditCardModal = (card, columnId) => {
+        setEditingCard(card);
+        setActiveColumnId(columnId);
+        setIsModalOpen(true);
+    };
 
-    // ----- SINCRONIZAÇÃO COM LOCALSTORAGE -----
-    const syncToStorage = useCallback(() => {
-        setStored(allBoards);
-    }, [allBoards, setStored]);
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setEditingCard(null);
+        setActiveColumnId(null);
+    };
 
-    // ----- ADD / REMOVE COLUMNS & CARDS -----
-
-    const handleAddColumn = useCallback(() => {
-        if (!board) return;
+    const handleAddColumn = () => {
         const title = prompt('Digite o título da nova coluna:');
-        if (!title || title.trim() === '') return;
-        const newColumn = {
-            id: uuid(),
-            title: title.trim(),
-            cards: []
-        };
-        const updatedBoard = {
-            ...board,
-            columns: [...(board.columns || []), newColumn]
-        };
-        updateBoardData(updatedBoard);
-    }, [board, updateBoardData]);
-
-    const handleAddCard = useCallback((columnId) => {
-        if (!board) return;
-        const text = prompt('Digite o texto do novo card:');
-        if (!text || text.trim() === '') return;
-
-        const currentColumns = board.columns || [];
-        const targetColumn = currentColumns.find(col => col.id === columnId);
-        if (!targetColumn) {
-            console.error('Coluna não encontrada:', columnId);
-            return;
+        if (title && title.trim()) {
+            const newColumn = { id: uuid(), title: title.trim(), cards: [] };
+            dispatch(addColumn({ boardId, newColumn }));
         }
+    };
 
-        const newCard = {
-            id: uuid(),
-            text: text.trim()
-        };
-
-        const updatedColumns = currentColumns.map(col =>
-            col.id === columnId
-                ? { ...col, cards: [...(col.cards || []), newCard] }
-                : col
-        );
-
-        const updatedBoard = { ...board, columns: updatedColumns };
-        updateBoardData(updatedBoard);
-    }, [board, updateBoardData]);
-
-    const handleRemoveCard = useCallback((columnId, cardId) => {
-        if (!board) return;
-        const confirmed = window.confirm('Tem certeza que deseja remover este card?');
-        if (!confirmed) return;
-
-        const currentColumns = board.columns || [];
-        const updatedColumns = currentColumns.map(col =>
-            col.id === columnId
-                ? { ...col, cards: (col.cards || []).filter(card => card.id !== cardId) }
-                : col
-        );
-
-        const updatedBoard = { ...board, columns: updatedColumns };
-        updateBoardData(updatedBoard);
-    }, [board, updateBoardData]);
-
-    const handleRemoveColumn = useCallback((columnId) => {
-        if (!board) return;
-        const columnObj = (board.columns || []).find(col => col.id === columnId);
-        if (!columnObj) return;
-
-        const cardCount = (columnObj.cards || []).length;
+    const handleRemoveColumn = (columnId) => {
+        const column = board.columns.find(c => c.id === columnId);
+        if (!column) return;
+        
+        const cardCount = column.cards?.length || 0;
         const message = cardCount > 0
-            ? `Tem certeza que deseja remover a coluna "${columnObj.title}"? Isso também removerá ${cardCount} card(s).`
-            : `Tem certeza que deseja remover a coluna "${columnObj.title}"?`;
+            ? `Tem certeza que deseja remover a coluna "${column.title}"? Isso também removerá ${cardCount} cartão(s).`
+            : `Tem certeza que deseja remover a coluna "${column.title}"?`;
 
-        const confirmed = window.confirm(message);
-        if (!confirmed) return;
+        if (window.confirm(message)) {
+            dispatch(deleteColumn({ boardId, columnId }));
+        }
+    };
 
-        const updatedColumns = (board.columns || []).filter(col => col.id !== columnId);
-        const updatedBoard = { ...board, columns: updatedColumns };
-        updateBoardData(updatedBoard);
-    }, [board, updateBoardData]);
-
-    // ----- DRAG-AND-DROP (DnD) -----
-
-    const handleDragEnd = useCallback((event) => {
-        if (!board) return;
+    const handleDragEnd = (event) => {
         const { active, over } = event;
-        if (!over) return;
-        if (active.id === over.id) return;
+        if (!over || active.id === over.id) return;
 
-        const activeData = active.data.current;
-        const overData = over.data.current;
-        if (!activeData || activeData.type !== 'card') {
-            console.error('Dados de drag inválidos:', activeData);
-            return;
-        }
+        const sourceCard = active.data.current.card;
+        const sourceColumnId = active.data.current.columnId;
 
-        const draggedCard = activeData.card;
-        const sourceColumnId = activeData.columnId;
+        const destColumnId = over.data.current?.type === 'column' 
+            ? over.id 
+            : over.data.current?.columnId;
+        
+        if (!destColumnId) return;
 
-        // Determinar destino e índice
-        let targetColumnId;
-        let targetIndex;
+        const sourceColumn = board.columns.find(c => c.id === sourceColumnId);
+        const destColumn = board.columns.find(c => c.id === destColumnId);
 
-        if (overData && overData.type === 'column') {
-            targetColumnId = overData.column.id;
-            targetIndex = (overData.column.cards || []).length;
-        } else if (overData && overData.type === 'card') {
-            targetColumnId = overData.columnId;
-            const targetColumn = (board.columns || []).find(col => col.id === targetColumnId);
-            targetIndex = targetColumn
-                ? (targetColumn.cards || []).findIndex(card => card.id === over.id)
-                : 0;
+        if (!sourceColumn || !destColumn) return;
+
+        const sourceIndex = sourceColumn.cards.findIndex(c => c.id === sourceCard.id);
+        
+        let destIndex;
+        if (over.data.current?.type === 'card') {
+            destIndex = destColumn.cards.findIndex(c => c.id === over.id);
         } else {
-            targetColumnId = over.id;
-            const targetColumn = (board.columns || []).find(col => col.id === targetColumnId);
-            if (targetColumn) {
-                targetIndex = (targetColumn.cards || []).length;
-            } else {
-                console.error('Não foi possível determinar a coluna de destino');
-                return;
-            }
+            destIndex = destColumn.cards.length;
         }
 
-        const currentColumns = board.columns || [];
-        const sourceColumn = currentColumns.find(col => col.id === sourceColumnId);
-        const targetColumn = currentColumns.find(col => col.id === targetColumnId);
-        if (!sourceColumn || !targetColumn) {
-            console.error('Coluna não encontrada:', { sourceColumnId, targetColumnId });
-            return;
-        }
+        dispatch(moveCard({
+            boardId,
+            sourceColumnId,
+            destColumnId,
+            sourceIndex,
+            destIndex
+        }));
+    };
 
-        // Se for mesma coluna, apenas reordena
-        if (sourceColumnId === targetColumnId) {
-            const columnCards = [...(sourceColumn.cards || [])];
-            const sourceIndex = columnCards.findIndex(card => card.id === draggedCard.id);
-            if (sourceIndex === -1) {
-                console.error('Card não encontrado na coluna de origem');
-                return;
-            }
-            const [removed] = columnCards.splice(sourceIndex, 1);
-            columnCards.splice(targetIndex, 0, removed);
-
-            const updatedColumns = currentColumns.map(col =>
-                col.id === sourceColumnId
-                    ? { ...col, cards: columnCards }
-                    : col
-            );
-            updateBoardData({ ...board, columns: updatedColumns });
-        } else {
-            // Move de uma coluna para outra
-            const sourceCards = [...(sourceColumn.cards || [])];
-            const targetCards = [...(targetColumn.cards || [])];
-
-            const sourceIndex = sourceCards.findIndex(card => card.id === draggedCard.id);
-            if (sourceIndex === -1) {
-                console.error('Card não encontrado na coluna de origem');
-                return;
-            }
-            const [removed] = sourceCards.splice(sourceIndex, 1);
-            targetCards.splice(targetIndex, 0, removed);
-
-            const updatedColumns = currentColumns.map(col => {
-                if (col.id === sourceColumnId) {
-                    return { ...col, cards: sourceCards };
-                }
-                if (col.id === targetColumnId) {
-                    return { ...col, cards: targetCards };
-                }
-                return col;
-            });
-
-            updateBoardData({ ...board, columns: updatedColumns });
-        }
-    }, [board, updateBoardData]);
-
-    // ----- useEffect para sincronizar no localStorage sempre que allBoards mudar -----
-    useEffect(() => {
-        syncToStorage();
-    }, [allBoards, syncToStorage]);
-
-    // ----- Se o board não existir (URL inválida) -----
     if (!board) {
         return (
             <div className="board-page">
@@ -241,42 +124,45 @@ export default function BoardPage() {
                     <IconArrowLeft stroke={2} width={18} height={18} /> Página inicial
                 </Link>
                 <div className="error-message">
-                    <h2>Board não encontrado</h2>
-                    <p>O board que você está procurando não existe ou foi removido.</p>
+                    <h2>Quadro não encontrado</h2>
+                    <p>O quadro que você está procurando não existe ou foi removido.</p>
                 </div>
             </div>
         );
     }
 
-    // ----- Dados para renderizar -----
-    const boardColumns = board.columns || [];
-    const boardTitle = board.title || 'Board sem título';
-
     return (
         <div className="board-page">
-            {/* Cabeçalho */}
             <div className="board-header">
                 <Link to="/" className="btn-secondary">
                     <IconArrowLeft stroke={2} width={18} height={18} /> Página inicial
                 </Link>
-                <h2>{boardTitle}</h2>
-                <button
-                    onClick={handleAddColumn}
-                    className="btn-primary"
-                    title="Adicionar nova coluna"
-                >
-                    <IconPlus /> Nova coluna
-                </button>
+                <h2>{board.title}</h2>
+                <div className="board-actions">
+                     <button
+                        onClick={() => setShowArchived(!showArchived)}
+                        className="btn-secondary"
+                        title={showArchived ? "Ocultar arquivados" : "Mostrar arquivados"}
+                    >
+                        <IconArchive /> {showArchived ? "Ocultar" : "Mostrar"} Arquivados
+                    </button>
+                    <button onClick={handleAddColumn} className="btn-primary">
+                        <IconPlus /> Nova coluna
+                    </button>
+                </div>
             </div>
 
-            {/* Contexto do DnD Kit */}
-            <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-            >
+            {/* --- NOVO CABEÇALHO DE ARQUIVADOS --- */}
+            {showArchived && (
+                <div className="archive-view-header">
+                    <h3>Modo de Visualização: Arquivados</h3>
+                    <p>Apenas cartões arquivados são exibidos. Para voltar, clique em "Ocultar Arquivados".</p>
+                </div>
+            )}
+
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <div className="columns-container">
-                    {boardColumns.length === 0 ? (
+                    {board.columns?.length === 0 ? (
                         <div className="empty-board">
                             <p>Este quadro ainda não tem colunas.</p>
                             <button onClick={handleAddColumn} className="btn-primary">
@@ -284,18 +170,33 @@ export default function BoardPage() {
                             </button>
                         </div>
                     ) : (
-                        boardColumns.map(column => (
-                            <DroppableColumn
-                                key={column.id}
-                                column={column}
-                                onAddCard={handleAddCard}
-                                onRemoveColumn={handleRemoveColumn}
-                                onRemoveCard={handleRemoveCard}
-                            />
-                        ))
+                        board.columns.map(column => {
+                            const filteredCards = column.cards 
+                                ? column.cards.filter(card => showArchived ? card.isArchived : !card.isArchived)
+                                : [];
+                            
+                            return (
+                                <DroppableColumn
+                                    key={column.id}
+                                    column={column}
+                                    cards={filteredCards}
+                                    onAddCard={handleOpenAddCardModal}
+                                    onEditCard={handleOpenEditCardModal}
+                                    onRemoveColumn={handleRemoveColumn}
+                                />
+                            );
+                        })
                     )}
                 </div>
             </DndContext>
+
+            <CardModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                boardId={boardId}
+                columnId={activeColumnId}
+                card={editingCard}
+            />
         </div>
     );
 }
