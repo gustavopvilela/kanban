@@ -7,9 +7,9 @@ import { IconPlus, IconTrash } from "@tabler/icons-react";
 
 export default function DroppableColumn({
     column,
-    cards, // Recebemos os cartões já filtrados
+    cards,
     onAddCard,
-    onEditCard, // Nova prop para editar
+    onEditCard,
     onRemoveColumn,
     isArchiveView
 }) {
@@ -31,7 +31,7 @@ export default function DroppableColumn({
                 {!isArchiveView && (
                     <div className="column-actions">
                         <button
-                            onClick={() => onAddCard(column.id)} // Agora abre o modal de criação
+                            onClick={() => onAddCard(column.id)}
                             className="btn-secondary btn-small"
                             title="Adicionar novo cartão"
                         >
@@ -67,7 +67,6 @@ export default function DroppableColumn({
                                 key={card.id}
                                 card={card}
                                 columnId={column.id}
-                                // Passa a função para abrir o modal de edição
                                 onEdit={() => onEditCard(card, column.id)}
                             />
                         ))}

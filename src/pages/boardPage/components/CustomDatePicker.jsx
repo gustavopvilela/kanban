@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import "./styles/CustomDatePicker.css"
 
-// Funções auxiliares
 const formatDateForDisplay = (dateString) => {
     if (!dateString) return '';
     const [year, month, day] = dateString.split('-');
@@ -14,7 +13,6 @@ const getMonthName = (date, locale = 'pt-BR') => {
 };
 
 export default function CustomDatePicker({ selectedDate, onDateChange }) {
-    // --- ESTADOS ---
     const [isOpen, setIsOpen] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [displayValue, setDisplayValue] = useState(formatDateForDisplay(selectedDate));
@@ -22,18 +20,13 @@ export default function CustomDatePicker({ selectedDate, onDateChange }) {
     const [viewMode, setViewMode] = useState('days'); // 'days', 'months', 'years'
     const [yearRangeStart, setYearRangeStart] = useState(new Date().getFullYear());
 
-    // --- REFs ---
     const datePickerRef = useRef(null);
     const inputRef = useRef(null);
 
-    // --- Lógica de Data Atual ---
-    // Cria uma referência para "hoje" zerando as horas, para comparações precisas.
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
 
-    // --- EFEITOS (useEffect) ---
-    // (O resto dos useEffects permanece o mesmo)
     useEffect(() => {
         setDisplayValue(formatDateForDisplay(selectedDate));
         const initialDate = selectedDate ? new Date(`${selectedDate}T00:00:00`) : new Date();
@@ -64,8 +57,6 @@ export default function CustomDatePicker({ selectedDate, onDateChange }) {
         }
     }, [isOpen]);
 
-    // --- MANIPULADORES DE EVENTOS (Handlers) ---
-    // (O resto dos handlers permanece o mesmo)
     const handleInputClick = () => {
         if (isOpen) {
             setIsOpen(false);
@@ -105,10 +96,7 @@ export default function CustomDatePicker({ selectedDate, onDateChange }) {
         }
     };
 
-    // --- LÓGICA DE RENDERIZAÇÃO (COM ATUALIZAÇÕES) ---
-
     const renderHeader = () => {
-        // ... (A função renderHeader não precisa de alterações)
         const year = currentMonth.getFullYear();
         let title;
         switch (viewMode) {
@@ -119,7 +107,7 @@ export default function CustomDatePicker({ selectedDate, onDateChange }) {
                 { const endYear = yearRangeStart + 11;
                 title = <span className="calendar-title">{`${yearRangeStart} - ${endYear}`}</span>;
                 break; }
-            default: // 'days'
+            default:
                 title = (
                     <>
                         <span className="calendar-title month-title" onClick={() => setViewMode('months')}>
@@ -156,10 +144,7 @@ export default function CustomDatePicker({ selectedDate, onDateChange }) {
         }
         for (let day = 1; day <= daysInMonth; day++) {
             const dateOfThisDay = new Date(year, month, day);
-
-            // --- NOVA LÓGICA ---
             const isPastDate = dateOfThisDay < today;
-            // --- FIM DA NOVA LÓGICA ---
 
             const isToday = today.toDateString() === dateOfThisDay.toDateString();
             const isSelected = selected && selected.toDateString() === dateOfThisDay.toDateString();
@@ -175,7 +160,7 @@ export default function CustomDatePicker({ selectedDate, onDateChange }) {
                     key={day}
                     className={className}
                     onClick={() => handleDateSelect(day)}
-                    disabled={isPastDate} // Desabilita o botão
+                    disabled={isPastDate}
                 >
                     {day}
                 </button>
@@ -199,10 +184,8 @@ export default function CustomDatePicker({ selectedDate, onDateChange }) {
         return (
             <div className="calendar-grid-large">
                 {monthNames.map((name, index) => {
-                    // --- NOVA LÓGICA ---
                     const yearInView = currentMonth.getFullYear();
                     const isPastMonth = yearInView < currentYear || (yearInView === currentYear && index < currentMonthIndex);
-                    // --- FIM DA NOVA LÓGICA ---
 
                     return (
                         <button
@@ -226,9 +209,7 @@ export default function CustomDatePicker({ selectedDate, onDateChange }) {
         return (
             <div className="calendar-grid-large">
                 {years.map(year => {
-                    // --- NOVA LÓGICA ---
                     const isPastYear = year < currentYear;
-                    // --- FIM DA NOVA LÓGICA ---
                     return (
                         <button
                             key={year}

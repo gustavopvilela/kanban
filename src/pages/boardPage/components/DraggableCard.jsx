@@ -4,7 +4,6 @@ import { CSS } from '@dnd-kit/utilities';
 import { IconFlag, IconCalendar, IconChecklist, IconPencil } from '@tabler/icons-react';
 import './styles/DraggableCard.css';
 
-// Componente auxiliar para renderizar os ícones/badges
 const CardBadges = ({ card }) => {
     const { priority, dueDate, checklist } = card;
 
@@ -63,7 +62,6 @@ export default function DraggableCard({ card, columnId, onEdit }) {
         opacity: isDragging ? 0.5 : 1,
     };
 
-    // O título do cartão agora vem de `card.title`
     const cardTitle = card.title || 'Cartão sem título';
 
     return (
@@ -73,7 +71,7 @@ export default function DraggableCard({ card, columnId, onEdit }) {
             {...attributes}
             {...listeners}
             className="card"
-            data-priority={card.priority || 'medium'} // Para estilização via CSS
+            data-priority={card.priority || 'medium'}
         >
             <div className="card-content">
                 <p>{cardTitle}</p>
@@ -82,7 +80,7 @@ export default function DraggableCard({ card, columnId, onEdit }) {
             <div className="card-footer">
                 <button
                     onClick={(e) => {
-                        e.stopPropagation(); // Evita que o clique acione o drag
+                        e.stopPropagation();
                         onEdit();
                     }}
                     className="card-edit-btn"

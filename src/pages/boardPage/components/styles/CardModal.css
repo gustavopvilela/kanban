@@ -1,10 +1,7 @@
-/* Estilos para o conteúdo do modal de cartão */
 .card-modal-content {
     padding: 8px;
     color: var(--text-primary);
     max-width: 85vw;
-    /*max-height: 85vh;*/
-    /*overflow-y: auto;*/
 }
 
 .card-modal-content .form-group {
@@ -27,7 +24,7 @@
     padding: 0.75rem;
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
-    background-color: var(--surface-color); /* Alterado de --bg-secondary para --surface-color */
+    background-color: var(--surface-color);
     color: var(--text-primary);
     font-size: 1rem;
     transition: border-color 0.2s, box-shadow 0.2s;
@@ -39,7 +36,7 @@
 .card-modal-content select:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px var(--primary-hover); /* Alterado para uma cor mais visível */
+    box-shadow: 0 0 0 3px var(--primary-hover);
 }
 
 .card-modal-content .form-row {
@@ -51,7 +48,6 @@
     flex: 1;
 }
 
-/* Estilos para o select de prioridade */
 .card-modal-content select#cardPriority {
     appearance: none;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
@@ -65,7 +61,6 @@
     margin: 0;
 }
 
-/* Estilos da Checklist */
 .checklist-container {
     max-height: calc(3 * 2.5rem);
     overflow-y: auto;
@@ -135,7 +130,6 @@
     margin: 0 !important;
 }
 
-/* MUDANÇA 3: Adiciona estilos para o botão de ícone */
 .add-checklist-item .add-item-btn {
     display: flex;
     align-items: center;

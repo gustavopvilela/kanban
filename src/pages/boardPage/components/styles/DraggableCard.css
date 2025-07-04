@@ -1,13 +1,10 @@
-
-
 .card {
-    background-color: var(--bg-secondary);
-    border-radius: var(--border-radius);
+    border-radius: var(--radius);
     padding: 1rem;
     margin-bottom: 0.75rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
     cursor: grab;
-    border-left: 4px solid transparent; /* Borda para a prioridade */
+    border-left: 4px solid transparent;
     transition: background-color 0.2s, box-shadow 0.2s, border-left-color 0.3s;
     display: flex;
     justify-content: space-between;
@@ -15,7 +12,7 @@
 }
 
 .card:hover {
-    background-color: var(--bg-tertiary);
+    background-color: var(--border-color);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -53,7 +50,7 @@
     opacity: 0; /* Fica invisível por padrão */
     transition: opacity 0.2s, color 0.2s;
     padding: 4px;
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--radius-sm);
 }
 
 .card:hover .card-edit-btn {
@@ -62,7 +59,7 @@
 
 .card-edit-btn:hover {
     color: var(--primary-color);
-    background-color: var(--bg-hover);
+    background-color: var(--secondary-hover);
 }
 
 /* Estilos para os Badges */
@@ -79,8 +76,8 @@
     gap: 0.35rem;
     font-size: 0.75rem;
     padding: 0.2rem 0.5rem;
-    border-radius: var(--border-radius-lg);
-    background-color: var(--bg-tertiary);
+    border-radius: var(--radius-lg);
+    background-color: var(--background-color);
     color: var(--text-secondary);
     font-weight: 500;
 }
