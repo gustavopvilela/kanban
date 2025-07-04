@@ -1,6 +1,6 @@
 import React from 'react';
 import AppRouter from './routes/AppRouter';
-import ThemeManager from './components/ThemeManager';
+import ThemeManager from './contexts/ThemeManager.jsx';
 import {ToastProvider} from "./contexts/ToastContext.jsx";
 
 export default function App() {

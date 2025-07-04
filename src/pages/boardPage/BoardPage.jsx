@@ -20,6 +20,7 @@ import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from 
 
 // Ícones
 import {IconArrowLeft, IconPlus, IconArchive, IconArchiveOff, IconAlertTriangle} from "@tabler/icons-react";
+import SettingsMenu from "../../components/SettingsMenu.jsx";
 
 export default function BoardPage() {
     const { id: boardId } = useParams();
@@ -139,20 +140,22 @@ export default function BoardPage() {
                 </Link>
                 <h2>{board.title}</h2>
                 <div className="board-actions">
-                        <button
-                            onClick={() => setShowArchived(!showArchived)}
-                            className="btn-info"
-                            title={showArchived ? "Ocultar arquivados" : "Mostrar arquivados"}
-                        >
-                            {showArchived ? <IconArchiveOff/> : <IconArchive/>}
-                        </button>
+                    <button
+                        onClick={() => setShowArchived(!showArchived)}
+                        className="btn-info"
+                        title={showArchived ? "Ocultar arquivados" : "Mostrar arquivados"}
+                    >
+                        {showArchived ? <IconArchiveOff/> : <IconArchive/>}
+                    </button>
 
                     {/* O botão de criar nova coluna só aparece no modo de visualização normal */}
                     {!showArchived && (
-                        <button onClick={handleAddColumn} className="btn-primary" title="Adicionar nova coluna">
+                        <button onClick={handleAddColumn} className="dashboard-add-btn-small" title="Adicionar nova coluna">
                             <IconPlus />
                         </button>
                     )}
+
+                    <SettingsMenu/>
                 </div>
             </div>
 

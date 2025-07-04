@@ -238,6 +238,7 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
                                 type="button"
                                 className="btn-secondary btn-archive"
                                 onClick={handleArchiveToggle}
+                                title={card.isArchived ? "Desarquivar cartão" : "Arquivar cartão"}
                             >
                                 {card.isArchived ? <IconArchiveOff size={16}/> : <IconArchive size={16}/>}
                             </button>

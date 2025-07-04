@@ -1,6 +1,7 @@
 import React from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import ThemeToggleButton from '../../../components/ThemeToggleButton.jsx';
+import SettingsMenu from "../../../components/SettingsMenu.jsx";
 
 export default function DashboardHeader({ onAddBoard }) {
     return (
@@ -12,15 +13,17 @@ export default function DashboardHeader({ onAddBoard }) {
                 </p>
             </div>
 
-            <button
-                onClick={onAddBoard}
-                className="dashboard-add-btn"
-                aria-label="Criar novo quadro"
-            >
-                <IconPlus stroke={2} /> Novo quadro
-            </button>
+            <div className="dashboard-header-actions">
+                <button
+                    onClick={onAddBoard}
+                    className="dashboard-add-btn-small"
+                    aria-label="Criar novo quadro"
+                >
+                    <IconPlus stroke={2} /> Novo quadro
+                </button>
 
-            <ThemeToggleButton />
+                <SettingsMenu />
+            </div>
         </div>
     );
 }

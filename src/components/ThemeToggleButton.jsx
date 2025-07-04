@@ -1,10 +1,10 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { toggleTheme } from '../features/themeSlice'; // Importa a ação do Redux
-import { IconMoon, IconSun } from '@tabler/icons-react';
+import { IconSun, IconMoon } from '@tabler/icons-react';
 import './styles/ThemeToggleButton.css';
+import {toggleTheme} from "../features/themeSlice.js";
+import {useDispatch, useSelector} from "react-redux";
 
-const ThemeToggleButton = () => {
+function ThemeToggleButton() {
     // Lê o tema diretamente do estado do Redux
     const theme = useSelector((state) => state.theme.theme);
     const dispatch = useDispatch();
@@ -14,21 +14,20 @@ const ThemeToggleButton = () => {
         dispatch(toggleTheme());
     };
 
+
     return (
         <button
+            className="theme-toggle-button-menu"
             onClick={handleToggleTheme}
-            className={`theme-toggle-btn ${theme === 'light' ? '' : 'dark-active'}`}
+            aria-label={theme === "light" ? 'Ativar tema claro' : 'Ativar tema escuro'}
         >
-            <div className="flip-card">
-                <div className="card-face card-front">
-                    <span className="theme-icon sun-icon"><IconSun stroke={2} /></span>
-                </div>
-                <div className="card-face card-back">
-                    <span className="theme-icon moon-icon"><IconMoon stroke={2} /></span>
-                </div>
+            <div className="theme-show">
+                <span>Tema</span>
+                {theme === "light" ? <IconSun size={20} stroke={1.5} /> : <IconMoon size={20} stroke={1.5} />}
             </div>
+
         </button>
     );
-};
+}
 
 export default ThemeToggleButton;
