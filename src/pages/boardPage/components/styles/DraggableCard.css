@@ -54,11 +54,11 @@
 }
 
 .card:hover .card-edit-btn {
-    opacity: 1; /* Aparece no hover do cartão */
+    opacity: 1;
 }
 
 .card-edit-btn:hover {
-    color: var(--primary-color);
+    color: var(--text-primary);
     background-color: var(--secondary-hover);
 }
 
