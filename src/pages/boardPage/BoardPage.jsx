@@ -19,7 +19,7 @@ import CardModal from './components/CardModal';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 
 // Ícones
-import { IconArrowLeft, IconPlus, IconArchive } from "@tabler/icons-react";
+import {IconArrowLeft, IconPlus, IconArchive, IconArchiveOff, IconAlertTriangle} from "@tabler/icons-react";
 
 export default function BoardPage() {
     const { id: boardId } = useParams();
@@ -139,24 +139,30 @@ export default function BoardPage() {
                 </Link>
                 <h2>{board.title}</h2>
                 <div className="board-actions">
-                     <button
-                        onClick={() => setShowArchived(!showArchived)}
-                        className="btn-secondary"
-                        title={showArchived ? "Ocultar arquivados" : "Mostrar arquivados"}
-                    >
-                        <IconArchive /> {showArchived ? "Ocultar" : "Mostrar"} Arquivados
-                    </button>
-                    <button onClick={handleAddColumn} className="btn-primary">
-                        <IconPlus /> Nova coluna
-                    </button>
+                        <button
+                            onClick={() => setShowArchived(!showArchived)}
+                            className="btn-info"
+                            title={showArchived ? "Ocultar arquivados" : "Mostrar arquivados"}
+                        >
+                            {showArchived ? <IconArchiveOff/> : <IconArchive/>}
+                        </button>
+
+                    {/* O botão de criar nova coluna só aparece no modo de visualização normal */}
+                    {!showArchived && (
+                        <button onClick={handleAddColumn} className="btn-primary" title="Adicionar nova coluna">
+                            <IconPlus />
+                        </button>
+                    )}
                 </div>
             </div>
 
-            {/* --- NOVO CABEÇALHO DE ARQUIVADOS --- */}
             {showArchived && (
                 <div className="archive-view-header">
-                    <h3>Modo de Visualização: Arquivados</h3>
-                    <p>Apenas cartões arquivados são exibidos. Para voltar, clique em "Ocultar Arquivados".</p>
+                    <IconAlertTriangle size={40} className="archive-warning-icon"/>
+                    <div className="archive-view-content">
+                        <h3>Modo de visualização: Arquivados</h3>
+                        <p>Apenas cartões arquivados são exibidos. Para voltar à visualização normal, clique no ícone de ocultar.</p>
+                    </div>
                 </div>
             )}
 
@@ -183,6 +189,7 @@ export default function BoardPage() {
                                     onAddCard={handleOpenAddCardModal}
                                     onEditCard={handleOpenEditCardModal}
                                     onRemoveColumn={handleRemoveColumn}
+                                    isArchiveView={showArchived}
                                 />
                             );
                         })

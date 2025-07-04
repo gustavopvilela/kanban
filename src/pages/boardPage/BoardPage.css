@@ -1,7 +1,6 @@
 /* Estilos globais para a página do board */
 .board-page {
     min-height: 100vh;
-    height: 100vh;
     background-color: var(--background-color);
     padding: 24px;
 }
@@ -25,12 +24,18 @@
     flex: 1;
 }
 
+.board-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Define um espaço de 12px entre cada botão */
+}
+
 /* Container principal das colunas - usa flexbox para layout horizontal */
 .columns-container {
     display: flex;
     gap: 24px; /* Espaçamento consistente entre colunas */
     align-items: flex-start; /* Alinha colunas pelo topo */
-    overflow-x: auto; /* Permite scroll horizontal quando necessário */
+    flex-wrap: wrap;
     padding-bottom: 16px;
     min-height: 60vh;
 }
@@ -42,7 +47,6 @@
     box-shadow: var(--shadow-md);
     min-width: 300px; /* Largura mínima para manter proporção */
     max-width: 350px; /* Largura máxima para evitar colunas muito largas */
-    flex-shrink: 0; /* Impede que as colunas encolham demais */
     border: 2px solid var(--border-color);
     transition: all 0.2s ease;
 }
@@ -120,7 +124,7 @@
 .card {
     background-color: var(--surface-color);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius);
+    border-radius: var(--radius) !important;
     margin-bottom: 12px;
     padding: 16px;
     box-shadow: var(--shadow-sm);
@@ -265,23 +269,37 @@
 }
 
 .archive-view-header {
-    background-color: var(--bg-tertiary);
-    color: var(--text-secondary);
-    border-radius: var(--border-radius);
+    display: flex; /* Alinha ícone e texto lado a lado */
+    align-items: center; /* Centraliza verticalmente */
+    gap: 1.5rem; /* Espaço entre o ícone e o texto */
+
+    background-color: var(--warning-bg, #fffbeb); /* Cor de fundo de aviso */
+    color: var(--warning-text, #b45309); /* Cor de texto de aviso */
+
+    border-radius: var(--radius-lg); /* Bordas mais arredondadas */
     padding: 1rem 1.5rem;
     margin: 1.5rem 0;
-    border: 1px solid var(--border-color);
-    text-align: center;
+
+    border: 1px solid var(--warning-border, #fde68a); /* Borda principal */
+    border-left-width: 6px; /* Borda esquerda destacada */
+    border-left-color: var(--warning-icon-color, #f59e0b);
+
     animation: fadeIn 0.3s ease-out;
 }
 
+.archive-warning-icon {
+    color: var(--warning-icon-color, #f59e0b);
+    flex-shrink: 0; /* Impede que o ícone seja esmagado */
+}
+
 .archive-view-header h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.2rem;
-    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+    font-size: 1.1rem;
+    color: var(--warning-text, #b45309);
 }
 
 .archive-view-header p {
     margin: 0;
     font-size: 0.9rem;
+    opacity: 0.9;
 }

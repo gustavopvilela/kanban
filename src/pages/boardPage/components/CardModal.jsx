@@ -4,9 +4,18 @@ import { v4 as uuid } from 'uuid';
 // CORREÇÃO: Importa a nova ação 'toggleArchiveCard'
 import { addCard, updateCard, toggleArchiveCard } from '../../../features/boardsSlice';
 import Modal from '../../../components/Modal';
+import CustomDatePicker from './CustomDatePicker.jsx';
 import './styles/CardModal.css';
 // CORREÇÃO: Importa o ícone de arquivo
-import { IconTrash, IconCircleCheck, IconCircle, IconArchive } from '@tabler/icons-react';
+import {
+    IconTrash,
+    IconCircleCheck,
+    IconCircle,
+    IconArchive,
+    IconPlus,
+    IconArchiveOff,
+    IconAlertTriangle
+} from '@tabler/icons-react';
 
 export default function CardModal({ isOpen, onClose, card, columnId, boardId }) {
     const dispatch = useDispatch();
@@ -107,17 +116,27 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
         setChecklist(checklist.filter(item => item.id !== itemId));
     };
 
+    const formGroup = `form-group ${card && card.isArchived ? "readonly-container" : ""}`;
+
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <div className="card-modal-content">
-                <h2 className="modal-title">{card ? 'Editar Cartão' : 'Criar Novo Cartão'}</h2>
+                <h2 className="modal-title">{card ? (card.isArchived ? "Desarquivar cartão?" : "Editar cartão") : "Criar novo cartão" }</h2>
                 <div className="modal-divider"></div>
 
+                {card && card.isArchived && (
+                    <div className="archive-view-header">
+                        <IconAlertTriangle size={40} className="archive-warning-icon"/>
+                        <div className="archive-view-content">
+                            <p>Este cartão está arquivado, não é possível realizar alterações nele.</p>
+                        </div>
+                    </div>
+                )}
+
                 <form onSubmit={handleSave}>
-                    {/* ... campos do formulário (título, descrição, etc.) ... */}
-                    <div className="form-group">
-                        <label htmlFor="cardTitle">Título do Cartão</label>
+                    <div className={formGroup}>
+                        <label htmlFor="cardTitle">Título</label>
                         <input
                             type="text"
                             id="cardTitle"
@@ -125,11 +144,10 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Ex: Desenvolver a tela de login"
                             required
-                            autoFocus
                         />
                     </div>
 
-                    <div className="form-group">
+                    <div className={formGroup}>
                         <label htmlFor="cardDescription">Descrição</label>
                         <textarea
                             id="cardDescription"
@@ -141,7 +159,7 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
                     </div>
 
                     <div className="form-row">
-                        <div className="form-group">
+                        <div className={formGroup}>
                             <label htmlFor="cardPriority">Prioridade</label>
                             <select id="cardPriority" value={priority} onChange={(e) => setPriority(e.target.value)}>
                                 <option value="low">Baixa</option>
@@ -149,18 +167,16 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
                                 <option value="high">Alta</option>
                             </select>
                         </div>
-                        <div className="form-group">
+                        <div className={formGroup}>
                             <label htmlFor="cardDueDate">Prazo</label>
-                            <input
-                                type="date"
-                                id="cardDueDate"
-                                value={dueDate}
-                                onChange={(e) => setDueDate(e.target.value)}
+                            <CustomDatePicker
+                                selectedDate={dueDate}
+                                onDateChange={setDueDate}
                             />
                         </div>
                     </div>
 
-                    <div className="form-group">
+                    <div className={formGroup}>
                         <label>Checklist</label>
                         <div className="checklist-container">
                             {checklist.map(item => (
@@ -182,26 +198,30 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
                                 onChange={(e) => setNewChecklistItem(e.target.value)}
                                 placeholder="Adicionar um item..."
                             />
-                            <button type="button" className="btn-secondary" onClick={handleAddChecklistItem}>Adicionar</button>
+
+                            <button type="button" className="btn-secondary add-item-btn" onClick={handleAddChecklistItem}><IconPlus/></button>
                         </div>
                     </div>
 
 
                     <div className="modal-actions">
-                        {/* --- NOVO BOTÃO DE ARQUIVAR --- */}
-                        {/* Só aparece em modo de edição */}
                         {card && (
                              <button
                                 type="button"
                                 className="btn-secondary btn-archive"
                                 onClick={handleArchiveToggle}
                             >
-                                <IconArchive size={16}/>
-                                {card.isArchived ? 'Desarquivar' : 'Arquivar'}
+                                {card.isArchived ? <IconArchiveOff size={16}/> : <IconArchive size={16}/>}
                             </button>
                         )}
-                        <button type="button" className="btn-danger" onClick={onClose}>Cancelar</button>
-                        <button type="submit" className="btn-primary">Salvar</button>
+
+                        {card && !card.isArchived && (
+                            <button type="button" className="btn-danger" onClick={onClose}>Cancelar</button>
+                        )}
+
+                        {card && !card.isArchived && (
+                            <button type="submit" className="btn-primary">Salvar</button>
+                        )}
                     </div>
                 </form>
             </div>

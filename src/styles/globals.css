@@ -39,6 +39,12 @@ html.light {
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --warning-bg: #fffbeb; /* Fundo amarelo bem claro */
+    --warning-border: #fde68a; /* Borda amarela */
+    --warning-text: #b45309; /* Texto em tom âmbar escuro */
+    --warning-icon-color: #f59e0b;
+    --info-color: #0ea5e9;   /* Cor Slate 600 */
+    --info-hover: #0284c7;
 }
 
 /* Paleta 3 – Dark */
@@ -60,6 +66,12 @@ html.dark {
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+    --warning-bg: #2d2313;           /* Fundo: Âmbar bem escuro e dessaturado */
+    --warning-border: #534423;       /* Borda: Um tom acima do fundo para dar contorno */
+    --warning-text: #fef3c7;         /* Texto: Amarelo bem claro para contraste e leitura */
+    --warning-icon-color: #fbbf24;
+    --info-color: #0ea5e9;   /* Cor Slate 500 */
+    --info-hover: #0c8fc6;
 }
 
 
@@ -107,6 +119,27 @@ html.dark {
     border-color: var(--secondary-color);
     transform: translateY(-1px);
     box-shadow: var(--shadow-sm);
+}
+
+.btn-info {
+    background-color: var(--info-color);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-info:hover {
+    background-color: var(--info-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-danger {

@@ -2,6 +2,9 @@
 .card-modal-content {
     padding: 8px;
     color: var(--text-primary);
+    max-width: 85vw;
+    /*max-height: 85vh;*/
+    /*overflow-y: auto;*/
 }
 
 .card-modal-content .form-group {
@@ -23,11 +26,12 @@
     width: 100%;
     padding: 0.75rem;
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background-color: var(--bg-secondary);
+    border-radius: var(--radius);
+    background-color: var(--surface-color); /* Alterado de --bg-secondary para --surface-color */
     color: var(--text-primary);
     font-size: 1rem;
     transition: border-color 0.2s, box-shadow 0.2s;
+    resize: vertical;
 }
 
 .card-modal-content input:focus,
@@ -35,7 +39,7 @@
 .card-modal-content select:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px var(--primary-color-light);
+    box-shadow: 0 0 0 3px var(--primary-hover); /* Alterado para uma cor mais visível */
 }
 
 .card-modal-content .form-row {
@@ -47,14 +51,32 @@
     flex: 1;
 }
 
+/* Estilos para o select de prioridade */
+.card-modal-content select#cardPriority {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.25rem;
+    padding-right: 2.5rem;
+}
+
+#cardTitle {
+    margin: 0;
+}
+
 /* Estilos da Checklist */
 .checklist-container {
-    max-height: 150px;
+    max-height: calc(3 * 2.5rem);
     overflow-y: auto;
     padding: 8px;
-    background-color: var(--bg-tertiary);
-    border-radius: var(--border-radius);
+    background-color: var(--surface-color);
+    border-radius: var(--radius);
     border: 1px solid var(--border-color);
+}
+
+.checklist-container:empty {
+    display: none;
 }
 
 .checklist-item {
@@ -62,16 +84,16 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.5rem;
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--radius);
 }
 
 .checklist-item:hover {
-    background-color: var(--bg-hover);
+    background-color: var(--primary-hover);
 }
 
 .checklist-item.completed span {
     text-decoration: line-through;
-    color: var(--text-muted);
+    color: var(--text-secondary);
 }
 
 .checklist-item button {
@@ -90,7 +112,7 @@
 
 .checklist-item .btn-delete-item {
     margin-left: auto;
-    color: var(--text-muted);
+    color: var(--text-secondary);
 }
 .checklist-item .btn-delete-item:hover {
     color: var(--danger-color);
@@ -104,8 +126,29 @@
     display: flex;
     gap: 0.5rem;
     margin-top: 0.75rem;
+    align-items: center;
 }
 
 .add-checklist-item input {
     flex-grow: 1;
+    height: 40px;
+    margin: 0 !important;
+}
+
+/* MUDANÇA 3: Adiciona estilos para o botão de ícone */
+.add-checklist-item .add-item-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: var(--radius);
+}
+
+.readonly-container {
+    pointer-events: none !important;
+    opacity: 0.7 !important;
+    user-select: none !important;
 }

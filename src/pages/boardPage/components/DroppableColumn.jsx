@@ -10,7 +10,8 @@ export default function DroppableColumn({
     cards, // Recebemos os cartões já filtrados
     onAddCard,
     onEditCard, // Nova prop para editar
-    onRemoveColumn
+    onRemoveColumn,
+    isArchiveView
 }) {
     const { setNodeRef, isOver } = useDroppable({
         id: column.id,
@@ -27,22 +28,24 @@ export default function DroppableColumn({
             {/* Cabeçalho da coluna */}
             <div className="column-header">
                 <h3 title={columnTitle}>{columnTitle}</h3>
-                <div className="column-actions">
-                    <button
-                        onClick={() => onAddCard(column.id)} // Agora abre o modal de criação
-                        className="btn-secondary btn-small"
-                        title="Adicionar novo cartão"
-                    >
-                        <IconPlus stroke={2} width={16} height={16} />
-                    </button>
-                    <button
-                        onClick={() => onRemoveColumn(column.id)}
-                        className="btn-danger btn-small"
-                        title="Remover coluna"
-                    >
-                        <IconTrash stroke={2} width={16} height={16} />
-                    </button>
-                </div>
+                {!isArchiveView && (
+                    <div className="column-actions">
+                        <button
+                            onClick={() => onAddCard(column.id)} // Agora abre o modal de criação
+                            className="btn-secondary btn-small"
+                            title="Adicionar novo cartão"
+                        >
+                            <IconPlus stroke={2} width={16} height={16} />
+                        </button>
+                        <button
+                            onClick={() => onRemoveColumn(column.id)}
+                            className="btn-danger btn-small"
+                            title="Remover coluna"
+                        >
+                            <IconTrash stroke={2} width={16} height={16} />
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Área de drop */}

@@ -25,9 +25,9 @@ const CardBadges = ({ card }) => {
                 </span>
             )}
             {dueDate && (
-                <span className="badge" title={`Prazo: ${new Date(dueDate).toLocaleDateString()}`}>
+                <span className="badge" title={`Prazo: ${new Date(dueDate + 'T00:00:00').toLocaleDateString()}`}>
                     <IconCalendar size={16} />
-                    {new Date(dueDate).toLocaleDateString()}
+                    {new Date(dueDate + 'T00:00:00').toLocaleDateString()}
                 </span>
             )}
             {checklist && totalItems > 0 && (
