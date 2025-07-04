@@ -14,11 +14,13 @@ import {
     IconArchive,
     IconPlus,
     IconArchiveOff,
-    IconAlertTriangle
+    IconAlertTriangle, IconExclamationCircle, IconCheck
 } from '@tabler/icons-react';
+import {useToastContext} from "../../../contexts/ToastContext.jsx";
 
 export default function CardModal({ isOpen, onClose, card, columnId, boardId }) {
     const dispatch = useDispatch();
+    const { addToast } = useToastContext();
 
     // Estado interno do formulário
     const [title, setTitle] = useState('');
@@ -36,6 +38,16 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
             setPriority(card.priority || 'medium');
             setDueDate(card.dueDate ? card.dueDate.split('T')[0] : '');
             setChecklist(card.checklist || []);
+
+            /* Se o cartão está arquivado, uma mensagem informando que os dados não podem ser
+             *  editados aparece. */
+            if (card.isArchived) {
+                addToast('Este cartão está arquivado e não pode ser editado.', {
+                    type: 'warning',
+                    icon: <IconAlertTriangle size={24} />
+                });
+            }
+
         } else {
             // Reseta o formulário para o estado inicial (modo de criação)
             setTitle('');
@@ -44,12 +56,15 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
             setDueDate('');
             setChecklist([]);
         }
-    }, [isOpen, card]);
+    }, [isOpen, card, addToast]);
 
     const handleSave = (e) => {
         e.preventDefault();
         if (!title.trim()) {
-            alert('O título do cartão não pode estar vazio.');
+            addToast('O título do cartão não pode estar vazio.', {
+                type: 'danger',
+                icon: <IconExclamationCircle size={24} />
+            });
             return;
         }
 
@@ -70,6 +85,11 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
                 columnId,
                 updatedCard: { ...card, ...cardData }
             }));
+
+            addToast('Cartão atualizado com sucesso!', {
+                type: 'success',
+                icon: <IconCheck size={24} />
+            });
         } else {
             // Modo de Criação: adiciona um novo cartão
             dispatch(addCard({
@@ -77,20 +97,38 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
                 columnId,
                 newCard: { id: uuid(), ...cardData }
             }));
+
+            addToast('Cartão criado com sucesso!', {
+                type: 'success',
+                icon: <IconCheck size={24} />
+            });
         }
-        onClose(); // Fecha o modal após salvar
+        onClose();
     };
 
-    // --- NOVA FUNÇÃO PARA ARQUIVAR/DESARQUIVAR ---
     const handleArchiveToggle = () => {
-        if (!card) return; // Segurança: só funciona em modo de edição
+        if (!card) return; /* Só é possível arquivar um cartão se ele existir */
 
         dispatch(toggleArchiveCard({
             boardId,
             columnId,
             cardId: card.id
         }));
-        onClose(); // Fecha o modal após a ação
+
+        if (!card.isArchived) {
+            addToast('Cartão arquivado. Acesse a página de itens arquivados para visualizar.', {
+                type: 'info',
+                icon: <IconArchive size={24} />
+            });
+        }
+        else {
+            addToast('Cartão desarquivado.', {
+                type: 'info',
+                icon: <IconArchive size={24} />
+            });
+        }
+
+        onClose();
     };
 
     const handleAddChecklistItem = () => {
@@ -125,15 +163,6 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
                 <h2 className="modal-title">{card ? (card.isArchived ? "Desarquivar cartão?" : "Editar cartão") : "Criar novo cartão" }</h2>
                 <div className="modal-divider"></div>
 
-                {card && card.isArchived && (
-                    <div className="archive-view-header">
-                        <IconAlertTriangle size={40} className="archive-warning-icon"/>
-                        <div className="archive-view-content">
-                            <p>Este cartão está arquivado, não é possível realizar alterações nele.</p>
-                        </div>
-                    </div>
-                )}
-
                 <form onSubmit={handleSave}>
                     <div className={formGroup}>
                         <label htmlFor="cardTitle">Título</label>
@@ -143,7 +172,6 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Ex: Desenvolver a tela de login"
-                            required
                         />
                     </div>
 
@@ -215,11 +243,11 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
                             </button>
                         )}
 
-                        {card && !card.isArchived && (
+                        {(!card || !card.isArchived) && (
                             <button type="button" className="btn-danger" onClick={onClose}>Cancelar</button>
                         )}
 
-                        {card && !card.isArchived && (
+                        {(!card || !card.isArchived) && (
                             <button type="submit" className="btn-primary">Salvar</button>
                         )}
                     </div>

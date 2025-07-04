@@ -39,12 +39,32 @@ html.light {
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --warning-bg: #fffbeb; /* Fundo amarelo bem claro */
-    --warning-border: #fde68a; /* Borda amarela */
-    --warning-text: #b45309; /* Texto em tom âmbar escuro */
+    --azure: #0ea5e9;   /* Cor Slate 600 */
+    --azure-hover: #0284c7;
+
+    /* Cores para warning */
+    --warning-bg: #fffbeb;
+    --warning-border: #fde68a;
+    --warning-text: #b45309;
     --warning-icon-color: #f59e0b;
-    --info-color: #0ea5e9;   /* Cor Slate 600 */
-    --info-hover: #0284c7;
+
+    /* Cores para success */
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --success-text: #15803d;
+    --success-icon-color: #22c55e;
+
+    /* Cores para danger */
+    --danger-bg: #fef2f2;
+    --danger-border: #fecaca;
+    --danger-text: #b91c1c;
+    --danger-icon-color: #ef4444;
+
+    /* Cores para info */
+    --info-bg: #eff6ff;
+    --info-border: #bfdbfe;
+    --info-text: #1d4ed8;
+    --info-icon-color: #3b82f6;
 }
 
 /* Paleta 3 – Dark */
@@ -66,12 +86,32 @@ html.dark {
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
-    --warning-bg: #2d2313;           /* Fundo: Âmbar bem escuro e dessaturado */
-    --warning-border: #534423;       /* Borda: Um tom acima do fundo para dar contorno */
-    --warning-text: #fef3c7;         /* Texto: Amarelo bem claro para contraste e leitura */
+    --azure: #0ea5e9;   /* Cor Slate 500 */
+    --azure-hover: #0c8fc6;
+
+    /* Cores para warning */
+    --warning-bg: #2d2313;
+    --warning-border: #534423;
+    --warning-text: #fef3c7;
     --warning-icon-color: #fbbf24;
-    --info-color: #0ea5e9;   /* Cor Slate 500 */
-    --info-hover: #0c8fc6;
+
+    /* Cores para success */
+    --success-bg: #112318;
+    --success-border: #1a432b;
+    --success-text: #dcfce7;
+    --success-icon-color: #4ade80;
+
+    /* Cores para danger */
+    --danger-bg: #2e1515;
+    --danger-border: #5c1a1a;
+    --danger-text: #fee2e2;
+    --danger-icon-color: #f87171;
+
+    /* Cores para info */
+    --info-bg: #192137;
+    --info-border: #203360;
+    --info-text: #dbeafe;
+    --info-icon-color: #60a5fa;
 }
 
 
@@ -122,7 +162,7 @@ html.dark {
 }
 
 .btn-info {
-    background-color: var(--info-color);
+    background-color: var(--azure);
     color: white;
     border: none;
     padding: 12px 20px;
@@ -137,7 +177,7 @@ html.dark {
 }
 
 .btn-info:hover {
-    background-color: var(--info-hover);
+    background-color: var(--azure-hover);
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
 }
