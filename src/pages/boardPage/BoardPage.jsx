@@ -140,9 +140,11 @@ export default function BoardPage() {
                 </Link>
                 <h2>{board.title}</h2>
                 <div className="board-actions">
-                    <Link to={`/board/${boardId}/calendar`} className="btn-icon" title="Visão de Calendário">
-                        <IconCalendar size={24}/>
-                    </Link>
+                    {!showArchived && (
+                        <Link to={`/board/${boardId}/calendar`} className="btn-icon" title="Visão de Calendário">
+                            <IconCalendar size={24}/>
+                        </Link>
+                    )}
 
                     <button
                         onClick={() => setShowArchived(!showArchived)}
