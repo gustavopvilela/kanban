@@ -7,7 +7,7 @@ import { addColumn, deleteColumn, moveCard } from '../../features/boardsSlice';
 import DroppableColumn from './components/DroppableColumn';
 import CardModal from './components/CardModal';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import {IconArrowLeft, IconPlus, IconArchive, IconArchiveOff, IconAlertTriangle} from "@tabler/icons-react";
+import {IconArrowLeft, IconPlus, IconArchive, IconArchiveOff, IconAlertTriangle, IconCalendar} from "@tabler/icons-react";
 import SettingsMenu from "../../components/SettingsMenu.jsx";
 
 export default function BoardPage() {
@@ -140,6 +140,10 @@ export default function BoardPage() {
                 </Link>
                 <h2>{board.title}</h2>
                 <div className="board-actions">
+                    <Link to={`/board/${boardId}/calendar`} className="btn-icon" title="Visão de Calendário">
+                        <IconCalendar size={24}/>
+                    </Link>
+
                     <button
                         onClick={() => setShowArchived(!showArchived)}
                         className="btn-info"

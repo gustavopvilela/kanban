@@ -286,3 +286,26 @@
     font-size: 0.9rem;
     opacity: 0.9;
 }
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-icon:hover {
+    background-color: var(--border-color);
+    color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+.btn-icon:active {
+    transform: scale(1);
+}
