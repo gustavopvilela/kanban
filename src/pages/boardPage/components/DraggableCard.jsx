@@ -1,8 +1,45 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { IconFlag, IconCalendar, IconChecklist, IconPencil } from '@tabler/icons-react';
+import './styles/DraggableCard.css';
 
-export default function DraggableCard({ card, columnId, onRemove }) {
+const CardBadges = ({ card }) => {
+    const { priority, dueDate, checklist } = card;
+
+    const completedItems = checklist ? checklist.filter(item => item.completed).length : 0;
+    const totalItems = checklist ? checklist.length : 0;
+
+    const priorityLabels = {
+        low: 'Baixa',
+        medium: 'Média',
+        high: 'Alta'
+    };
+
+    return (
+        <div className="card-badges">
+            {priority && (
+                <span className={`badge priority-${priority}`} title={`Prioridade: ${priorityLabels[priority]}`}>
+                    <IconFlag size={16} />
+                </span>
+            )}
+            {dueDate && (
+                <span className="badge" title={`Prazo: ${new Date(dueDate + 'T00:00:00').toLocaleDateString()}`}>
+                    <IconCalendar size={16} />
+                    {new Date(dueDate + 'T00:00:00').toLocaleDateString()}
+                </span>
+            )}
+            {checklist && totalItems > 0 && (
+                <span className="badge" title="Progresso da checklist">
+                    <IconChecklist size={16} />
+                    {completedItems}/{totalItems}
+                </span>
+            )}
+        </div>
+    );
+};
+
+export default function DraggableCard({ card, columnId, onEdit }) {
     const {
         attributes,
         listeners,
@@ -25,6 +62,8 @@ export default function DraggableCard({ card, columnId, onRemove }) {
         opacity: isDragging ? 0.5 : 1,
     };
 
+    const cardTitle = card.title || 'Cartão sem título';
+
     return (
         <div
             ref={setNodeRef}
@@ -32,21 +71,24 @@ export default function DraggableCard({ card, columnId, onRemove }) {
             {...attributes}
             {...listeners}
             className="card"
-            title={card.text}
+            data-priority={card.priority || 'medium'}
         >
             <div className="card-content">
-                {card.text || 'Cartão sem texto'}
+                <p>{cardTitle}</p>
+                <CardBadges card={card} />
             </div>
-            <button
-                onClick={e => {
-                    e.stopPropagation(); // Evita conflito entre click e drag
-                    onRemove();
-                }}
-                className="card-remove-btn"
-                title="Remover cartão"
-            >
-                ×
-            </button>
+            <div className="card-footer">
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit();
+                    }}
+                    className="card-edit-btn"
+                    title="Editar cartão"
+                >
+                    <IconPencil size={16} />
+                </button>
+            </div>
         </div>
     );
 }

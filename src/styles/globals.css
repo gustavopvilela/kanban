@@ -3,6 +3,7 @@
 :root {
     --radius: 8px;
     --radius-lg: 12px;
+    --radius-sm: 6px;
 }
 
 * {
@@ -20,51 +21,98 @@ html, body {
     overflow-x: hidden;
 }
 
-/* Paleta 3 – Light */
 html.light {
-    --primary-color: #7c3aed;       /* Violeta */
+    --primary-color: #7c3aed;
     --primary-hover: #6d28d9;
-    --secondary-color: #9ca3af;     /* Cinza claro */
+    --secondary-color: #9ca3af;
     --secondary-hover: #6b7280;
-    --danger-color: #e11d48;        /* Magenta avermelhado */
+    --danger-color: #e11d48;
     --danger-hover: #be123c;
-    --success-color: #22c55e;       /* Verde lima */
-    --background-color: #f9fafb;    /* Quase branco */
-    --surface-color: #ffffff;       /* Branco puro */
-    --border-color: #e5e7eb;        /* Cinza bem claro */
-    --text-primary: #1f2937;        /* Cinza bem escuro */
-    --text-secondary: #4b5563;      /* Cinza médio */
-    --column-header: #f3f4f6;       /* Cinza quase branco */
+    --success-color: #22c55e;
+    --background-color: #f9fafb;
+    --surface-color: #ffffff;
+    --border-color: #e5e7eb;
+    --text-primary: #1f2937;
+    --text-secondary: #4b5563;
+    --column-header: #f3f4f6;
     --dragging-hover: #dbeafe;
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --azure: #0ea5e9;
+    --azure-hover: #0284c7;
+
+    /* Cores para warning */
+    --warning-bg: #fffbeb;
+    --warning-border: #fde68a;
+    --warning-text: #b45309;
+    --warning-icon-color: #f59e0b;
+
+    /* Cores para success */
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --success-text: #15803d;
+    --success-icon-color: #22c55e;
+
+    /* Cores para danger */
+    --danger-bg: #fef2f2;
+    --danger-border: #fecaca;
+    --danger-text: #b91c1c;
+    --danger-icon-color: #ef4444;
+
+    /* Cores para info */
+    --info-bg: #eff6ff;
+    --info-border: #bfdbfe;
+    --info-text: #1d4ed8;
+    --info-icon-color: #3b82f6;
 }
 
-/* Paleta 3 – Dark */
 html.dark {
-    --primary-color: #a78bfa;      /* Roxo claro para dark */
+    --primary-color: #a78bfa;
     --primary-hover: #8b5cf6;
-    --secondary-color: #6b7280;    /* Cinza médio */
+    --secondary-color: #6b7280;
     --secondary-hover: #4b5563;
-    --danger-color: #f472b6;       /* Rosa vibrante */
+    --danger-color: #f472b6;
     --danger-hover: #ec4899;
-    --success-color: #4ade80;      /* Verde suave */
-    --background-color: #1e1e2e;   /* Azul-escuro com tom de roxo */
-    --surface-color: #2d2d3f;      /* Azul-marinho escuro */
-    --border-color: #3f3f52;       /* Cinza-azulado escuro */
-    --text-primary: #f9fafb;       /* Quase branco */
-    --text-secondary: #94a3b8;     /* Cinza-azulado claro */
-    --column-header: #1e1e2e;      /* Mesmo tom do background */
+    --success-color: #4ade80;
+    --background-color: #1e1e2e;
+    --surface-color: #2d2d3f;
+    --border-color: #3f3f52;
+    --text-primary: #f9fafb;
+    --text-secondary: #94a3b8;
+    --column-header: #1e1e2e;
     --dragging-hover: #E8DCF8FF;
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 0px 1px -2px rgb(0 0 0 / 0.3);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+    --azure: #0ea5e9;
+    --azure-hover: #0c8fc6;
+
+    /* Cores para warning */
+    --warning-bg: #2d2313;
+    --warning-border: #534423;
+    --warning-text: #fef3c7;
+    --warning-icon-color: #fbbf24;
+
+    /* Cores para success */
+    --success-bg: #112318;
+    --success-border: #1a432b;
+    --success-text: #dcfce7;
+    --success-icon-color: #4ade80;
+
+    /* Cores para danger */
+    --danger-bg: #2e1515;
+    --danger-border: #5c1a1a;
+    --danger-text: #fee2e2;
+    --danger-icon-color: #f87171;
+
+    /* Cores para info */
+    --info-bg: #192137;
+    --info-border: #203360;
+    --info-text: #dbeafe;
+    --info-icon-color: #60a5fa;
 }
 
-
-
-/* Sistema de botões reutilizáveis */
 .btn-primary {
     background-color: var(--primary-color);
     color: white;
@@ -109,6 +157,28 @@ html.dark {
     box-shadow: var(--shadow-sm);
 }
 
+.btn-info {
+    background-color: var(--azure);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--shadow-sm)
+}
+
+.btn-info:hover {
+    background-color: var(--azure-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
 .btn-danger {
     background-color: var(--danger-color);
     color: white;
@@ -127,7 +197,6 @@ html.dark {
     box-shadow: var(--shadow-md);
 }
 
-/* Variações de tamanho para botões */
 .btn-small {
     padding: 8px 12px;
     font-size: 12px;

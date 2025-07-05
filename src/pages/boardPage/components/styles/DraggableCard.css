@@ -1,0 +1,98 @@
+.card {
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    box-shadow: var(--shadow-sm);
+    cursor: grab;
+    border-left: 4px solid transparent;
+    transition: background-color 0.2s, box-shadow 0.2s, border-left-color 0.3s;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.card:hover {
+    background-color: var(--border-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Cores da borda baseadas na prioridade */
+.card[data-priority="high"] {
+    border-left-color: var(--danger-color);
+}
+.card[data-priority="medium"] {
+    border-left-color: #f59e0b; /* Amarelo/Laranja */
+}
+.card[data-priority="low"] {
+    border-left-color: #10b981; /* Verde */
+}
+
+.card-content {
+    flex-grow: 1;
+}
+
+.card-content p {
+    margin: 0;
+    font-weight: 500;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+.card-footer {
+    padding-left: 0.5rem;
+}
+
+.card-edit-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    opacity: 0; /* Fica invisível por padrão */
+    transition: opacity 0.2s, color 0.2s;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+}
+
+.card:hover .card-edit-btn {
+    opacity: 1;
+}
+
+.card-edit-btn:hover {
+    color: var(--text-primary);
+    background-color: var(--secondary-hover);
+}
+
+/* Estilos para os Badges */
+.card-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.badge {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-lg);
+    background-color: var(--background-color);
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.badge .icon {
+    stroke-width: 2;
+}
+
+/* Cores específicas para o badge de prioridade */
+.badge.priority-high {
+    color: var(--danger-color);
+}
+.badge.priority-medium {
+    color: #f59e0b;
+}
+.badge.priority-low {
+    color: #10b981;
+}

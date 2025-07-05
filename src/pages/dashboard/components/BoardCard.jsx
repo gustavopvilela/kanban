@@ -1,16 +1,32 @@
 import React, {useRef, useState} from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {IconAlertCircle, IconArrowRight, IconDotsVertical} from '@tabler/icons-react';
 import DropdownMenu from "../../../components/DropdownMenu.jsx";
 import Modal from "../../../components/Modal.jsx";
-import {deleteBoard, updateBoard} from "../../../features/boardsSlice.js";
+// CORREÇÃO: Importa a nova ação 'updateBoardDetails' em vez da antiga 'updateBoard'
+import {deleteBoard, updateBoardDetails} from "../../../features/boardsSlice.js";
 
 export default function BoardCard({ board }) {
     const dispatch = useDispatch();
 
-    const totalColumns = board.columns?.length || 0;
+    const { totalColumns, totalCards } = useSelector(state => {
+        const allColumns = state.boards.columns.entities || {};
+        const allCards = state.boards.cards.entities || {};
+
+        const boardColumnIds = board.columns || [];
+        const columnsForThisBoard = boardColumnIds.map(id => allColumns[id]).filter(Boolean);
+
+        const cardsForThisBoard = columnsForThisBoard.flatMap(col => (col.cards || []).map(cardId => allCards[cardId])).filter(Boolean);
+
+        return {
+            totalColumns: columnsForThisBoard.length,
+            totalCards: cardsForThisBoard.length
+        };
+    });
+
     const columnsText = `${totalColumns} ${totalColumns === 1 ? 'coluna' : 'colunas'}`;
+    const cardsText = `${totalCards} ${totalCards === 1 ? 'cartão' : 'cartões'}`;
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const optionsButtonRef = useRef(null);
@@ -42,6 +58,7 @@ export default function BoardCard({ board }) {
         setIsDropdownOpen (prevState => !prevState);
     };
 
+
     const closeDropdown = () => {
         setIsDropdownOpen(false);
         if (optionsButtonRef.current) {
@@ -58,14 +75,15 @@ export default function BoardCard({ board }) {
         closeDropdown();
     }
 
-    const edit = () => {
+    const edit = (e) => {
+        e.preventDefault(); // Adicionado para prevenir o comportamento padrão do formulário
         if (newBoardTitle && newBoardTitle.trim()) {
+            // CORREÇÃO: Despacha a nova ação 'updateBoardDetails' com a carga útil correta
             dispatch(
-                updateBoard({
-                    id: board.id,
+                updateBoardDetails({
+                    boardId: board.id,
                     title: newBoardTitle.trim(),
-                    description: newBoardDescription ? newBoardDescription.trim() : board.description,
-                    columns: board.columns,
+                    description: newBoardDescription.trim(),
                 })
             );
             closeEditModal();
@@ -89,12 +107,6 @@ export default function BoardCard({ board }) {
         closeDeleteModal();
     }
 
-    const totalCards = board.columns?.reduce(
-        (sum, col) => sum + (col.cards?.length || 0),
-        0
-    ) || 0;
-    const cardsText = `${totalCards} ${totalCards === 1 ? 'cartão' : 'cartões'}`;
-
     return (
         <div className="dashboard-board-card-wrapper">
             <Link
@@ -104,7 +116,6 @@ export default function BoardCard({ board }) {
                 aria-label={`Abrir quadro ${board.title}`}
             >
                 <div className="board-card-content">
-                    {/*<div className="board-card-icon">📊</div>*/}
                     <h3 className="board-card-title">{board.title}</h3>
                     <p className="board-card-description">{board.description ? board.description : ""}</p>
                     <div className="board-card-meta">

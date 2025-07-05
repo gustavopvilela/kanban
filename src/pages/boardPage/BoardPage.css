@@ -1,12 +1,9 @@
-/* Estilos globais para a página do board */
 .board-page {
     min-height: 100vh;
-    height: 100vh;
     background-color: var(--background-color);
     padding: 24px;
 }
 
-/* Cabeçalho do board com navegação e título */
 .board-header {
     display: flex;
     align-items: center;
@@ -25,24 +22,27 @@
     flex: 1;
 }
 
-/* Container principal das colunas - usa flexbox para layout horizontal */
+.board-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .columns-container {
     display: flex;
-    gap: 24px; /* Espaçamento consistente entre colunas */
-    align-items: flex-start; /* Alinha colunas pelo topo */
-    overflow-x: auto; /* Permite scroll horizontal quando necessário */
+    gap: 24px;
+    align-items: flex-start;
+    flex-wrap: wrap;
     padding-bottom: 16px;
     min-height: 60vh;
 }
 
-/* Estilo individual de cada coluna */
 .column {
     background-color: var(--surface-color);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
-    min-width: 300px; /* Largura mínima para manter proporção */
-    max-width: 350px; /* Largura máxima para evitar colunas muito largas */
-    flex-shrink: 0; /* Impede que as colunas encolham demais */
+    min-width: 300px;
+    max-width: 350px;
     border: 2px solid var(--border-color);
     transition: all 0.2s ease;
 }
@@ -53,7 +53,6 @@
     transform: translateY(2px);
 }
 
-/* Cabeçalho de cada coluna */
 .column-header {
     display: flex;
     align-items: center;
@@ -75,14 +74,12 @@
     white-space: nowrap;
 }
 
-/* Agrupamento dos botões de ação da coluna */
 .column-actions {
     display: flex;
     gap: 8px;
     margin-left: 12px;
 }
 
-/* Container dos cards com scroll interno */
 .cards-container {
     padding: 16px;
     min-height: 200px;
@@ -91,14 +88,12 @@
     transition: background-color 0.2s ease;
 }
 
-/* Efeito visual quando um card está sendo arrastado sobre a coluna */
 .cards-container.drag-over {
     background-color: var(--dragging-hover);
     border: 2px dashed var(--primary-color);
     border-radius: var(--radius);
 }
 
-/* Estilo para coluna vazia */
 .empty-column {
     text-align: center;
     padding: 40px 20px;
@@ -116,11 +111,10 @@
     font-style: normal !important;
 }
 
-/* Estilo individual de cada card */
 .card {
     background-color: var(--surface-color);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius);
+    border-radius: var(--radius) !important;
     margin-bottom: 12px;
     padding: 16px;
     box-shadow: var(--shadow-sm);
@@ -140,15 +134,13 @@
     cursor: grabbing;
 }
 
-/* Conteúdo do texto do card */
 .card-content {
     color: var(--text-primary);
     font-size: 14px;
     line-height: 1.5;
-    margin-right: 24px; /* Espaço para o botão de remover */
+    margin-right: 24px;
 }
 
-/* Botão de remover card */
 .card-remove-btn {
     position: absolute;
     top: 8px;
@@ -179,7 +171,6 @@
     transform: scale(1.1);
 }
 
-/* Estado de board vazio */
 .empty-board {
     text-align: center;
     padding: 80px 20px;
@@ -192,7 +183,6 @@
     margin-bottom: 24px;
 }
 
-/* Mensagens de erro */
 .error-message {
     text-align: center;
     padding: 60px 20px;
@@ -204,7 +194,6 @@
     margin-bottom: 16px;
 }
 
-/* Responsividade para telas menores */
 @media (max-width: 768px) {
     .board-page {
         padding: 16px;
@@ -238,14 +227,12 @@
     }
 }
 
-/* Animações suaves para interações de drag */
 .card[data-dragging="true"] {
     opacity: 0.5;
     transform: rotate(5deg);
     z-index: 1000;
 }
 
-/* Customização da barra de scroll */
 .cards-container::-webkit-scrollbar {
     width: 6px;
 }
@@ -262,4 +249,63 @@
 
 .cards-container::-webkit-scrollbar-thumb:hover {
     background: var(--secondary-color);
+}
+
+.archive-view-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    background-color: var(--warning-bg,);
+    color: var(--warning-text);
+
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+
+    border: 1px solid var(--warning-border);
+    border-left-width: 6px;
+    border-left-color: var(--warning-icon-color);
+
+    animation: fadeIn 0.3s ease-out;
+}
+
+.archive-warning-icon {
+    color: var(--warning-icon-color);
+    flex-shrink: 0;
+}
+
+.archive-view-header h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.1rem;
+    color: var(--warning-text);
+}
+
+.archive-view-header p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-icon:hover {
+    background-color: var(--border-color);
+    color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+.btn-icon:active {
+    transform: scale(1);
 }

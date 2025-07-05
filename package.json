@@ -14,7 +14,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@reduxjs/toolkit": "^2.8.2",
-    "@tabler/icons-react": "^3.33.0",
+    "@tabler/icons-react": "^3.34.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-redux": "^9.2.0",
