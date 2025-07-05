@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {IconAlertCircle, IconArrowRight, IconDotsVertical} from '@tabler/icons-react';
 import DropdownMenu from "../../../components/DropdownMenu.jsx";
@@ -10,8 +10,23 @@ import {deleteBoard, updateBoardDetails} from "../../../features/boardsSlice.js"
 export default function BoardCard({ board }) {
     const dispatch = useDispatch();
 
-    const totalColumns = board.columns?.length || 0;
+    const { totalColumns, totalCards } = useSelector(state => {
+        const allColumns = state.boards.columns.entities || {};
+        const allCards = state.boards.cards.entities || {};
+
+        const boardColumnIds = board.columns || [];
+        const columnsForThisBoard = boardColumnIds.map(id => allColumns[id]).filter(Boolean);
+
+        const cardsForThisBoard = columnsForThisBoard.flatMap(col => (col.cards || []).map(cardId => allCards[cardId])).filter(Boolean);
+
+        return {
+            totalColumns: columnsForThisBoard.length,
+            totalCards: cardsForThisBoard.length
+        };
+    });
+
     const columnsText = `${totalColumns} ${totalColumns === 1 ? 'coluna' : 'colunas'}`;
+    const cardsText = `${totalCards} ${totalCards === 1 ? 'cartão' : 'cartões'}`;
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const optionsButtonRef = useRef(null);
@@ -91,12 +106,6 @@ export default function BoardCard({ board }) {
         dispatch(deleteBoard(board.id));
         closeDeleteModal();
     }
-
-    const totalCards = board.columns?.reduce(
-        (sum, col) => sum + (col.cards?.length || 0),
-        0
-    ) || 0;
-    const cardsText = `${totalCards} ${totalCards === 1 ? 'cartão' : 'cartões'}`;
 
     return (
         <div className="dashboard-board-card-wrapper">

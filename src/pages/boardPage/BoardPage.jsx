@@ -3,22 +3,10 @@ import { useParams, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { v4 as uuid } from 'uuid';
 import './BoardPage.css';
-
-// Ações do Redux
-import {
-    addColumn,
-    deleteColumn,
-    moveCard,
-} from '../../features/boardsSlice';
-
-// Componentes
+import { addColumn, deleteColumn, moveCard } from '../../features/boardsSlice';
 import DroppableColumn from './components/DroppableColumn';
 import CardModal from './components/CardModal';
-
-// DnD Kit
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-
-// Ícones
 import {IconArrowLeft, IconPlus, IconArchive, IconArchiveOff, IconAlertTriangle} from "@tabler/icons-react";
 import SettingsMenu from "../../components/SettingsMenu.jsx";
 
@@ -26,10 +14,21 @@ export default function BoardPage() {
     const { id: boardId } = useParams();
     const dispatch = useDispatch();
 
-    const board = useSelector(state =>
-        state.boards.boards.find(b => b.id === boardId)
-    );
-    
+    const board = useSelector(state => {
+        const boardData = state.boards.boards.entities[boardId];
+        if (!boardData) return null;
+
+        const columns = boardData.columns.map(columnId => {
+            const columnData = state.boards.columns.entities[columnId];
+            if (!columnData) return null;
+
+            const cards = columnData.cards.map(cardId => state.boards.cards.entities[cardId]).filter(Boolean);
+            return { ...columnData, cards };
+        }).filter(Boolean);
+
+        return { ...boardData, columns };
+    });
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCard, setEditingCard] = useState(null);
     const [activeColumnId, setActiveColumnId] = useState(null);
@@ -41,7 +40,7 @@ export default function BoardPage() {
             activationConstraint: { distance: 8 }
         })
     );
-    
+
     const handleOpenAddCardModal = (columnId) => {
         setEditingCard(null);
         setActiveColumnId(columnId);
@@ -71,7 +70,7 @@ export default function BoardPage() {
     const handleRemoveColumn = (columnId) => {
         const column = board.columns.find(c => c.id === columnId);
         if (!column) return;
-        
+
         const cardCount = column.cards?.length || 0;
         const message = cardCount > 0
             ? `Tem certeza que deseja remover a coluna "${column.title}"? Isso também removerá ${cardCount} cartão(s).`
@@ -89,10 +88,10 @@ export default function BoardPage() {
         const sourceCard = active.data.current.card;
         const sourceColumnId = active.data.current.columnId;
 
-        const destColumnId = over.data.current?.type === 'column' 
-            ? over.id 
+        const destColumnId = over.data.current?.type === 'column'
+            ? over.id
             : over.data.current?.columnId;
-        
+
         if (!destColumnId) return;
 
         const sourceColumn = board.columns.find(c => c.id === sourceColumnId);
@@ -101,7 +100,7 @@ export default function BoardPage() {
         if (!sourceColumn || !destColumn) return;
 
         const sourceIndex = sourceColumn.cards.findIndex(c => c.id === sourceCard.id);
-        
+
         let destIndex;
         if (over.data.current?.type === 'card') {
             destIndex = destColumn.cards.findIndex(c => c.id === over.id);
@@ -110,11 +109,12 @@ export default function BoardPage() {
         }
 
         dispatch(moveCard({
-            boardId,
+            boardId, // boardId não é mais necessário no reducer, mas mantemos por consistência se necessário
             sourceColumnId,
             destColumnId,
             sourceIndex,
-            destIndex
+            destIndex,
+            cardId: active.id // Passamos o cardId diretamente
         }));
     };
 
@@ -148,7 +148,6 @@ export default function BoardPage() {
                         {showArchived ? <IconArchiveOff/> : <IconArchive/>}
                     </button>
 
-                    {/* O botão de criar nova coluna só aparece no modo de visualização normal */}
                     {!showArchived && (
                         <button onClick={handleAddColumn} className="dashboard-add-btn-small" title="Adicionar nova coluna">
                             <IconPlus />
@@ -180,10 +179,10 @@ export default function BoardPage() {
                         </div>
                     ) : (
                         board.columns.map(column => {
-                            const filteredCards = column.cards 
+                            const filteredCards = column.cards
                                 ? column.cards.filter(card => showArchived ? card.isArchived : !card.isArchived)
                                 : [];
-                            
+
                             return (
                                 <DroppableColumn
                                     key={column.id}
@@ -203,7 +202,6 @@ export default function BoardPage() {
             <CardModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                boardId={boardId}
                 columnId={activeColumnId}
                 card={editingCard}
             />

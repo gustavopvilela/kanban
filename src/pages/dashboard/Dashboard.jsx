@@ -12,8 +12,7 @@ import Modal from '../../components/Modal.jsx';
 
 export default function Dashboard() {
     const dispatch = useDispatch();
-    // Agora, o componente apenas lê os quadros diretamente do Redux.
-    const boards = useSelector(state => state.boards.boards);
+    const boards = useSelector(state => Object.values(state.boards.boards.entities || {}));
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newBoardTitle, setNewBoardTitle] = useState('');

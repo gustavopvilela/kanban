@@ -1,156 +1,184 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createEntityAdapter } from "@reduxjs/toolkit";
 
-const initialState = { boards: [] };
+/* Adaptadores de entidade para gerenciar as coleções de quadros normalizadas */
+const boardsAdapter = createEntityAdapter();
+const columnsAdapter = createEntityAdapter();
+const cardsAdapter = createEntityAdapter();
 
-// Função auxiliar para encontrar um cartão específico dentro do estado
-const findCard = (state, boardId, columnId, cardId) => {
-    const board = state.boards.find(b => b.id === boardId);
-    if (!board || !board.columns) return null;
+/* Estado inicial para cada entidade */
+const initialBoardsState = boardsAdapter.getInitialState();
+const initialColumnsState = columnsAdapter.getInitialState();
+const initialCardsState = cardsAdapter.getInitialState();
 
-    const column = board.columns.find(c => c.id === columnId);
-    if (!column || !column.cards) return null;
-    
-    const card = column.cards.find(c => c.id === cardId);
-    return card || null;
+/* Função para encontrar um cartão */
+const findCard = (state, cardId) => {
+    return state.cards.entities[cardId];
 }
 
 const boardsSlice = createSlice({
-    name: 'boards',
-    initialState,
+    name: "boards",
+    
+    /* O estado é um objeto com 3 parâmetros: boards, columns e cards */
+    initialState: {
+        boards: initialBoardsState,
+        columns: initialColumnsState,
+        cards: initialCardsState
+    },
     reducers: {
-        // --- Reducers de Quadros (Boards) ---
-        setBoards(state, action) {
-            state.boards = action.payload;
+        setAllData (state, action) {
+            const { boards, columns, cards } = action.payload;
+            boardsAdapter.setAll(state.boards, boards || []);
+            columnsAdapter.setAll(state.columns, columns || []);
+            cardsAdapter.setAll(state.cards, cards || []);
         },
-        addBoard(state, action) {
-            state.boards.push(action.payload);
+
+        addBoard: (state, action) => {
+            const board = action.payload;
+            boardsAdapter.addOne(state.boards, { ...board, columns: board.columns || [] });
         },
-        // NOVA AÇÃO para atualizar detalhes de um quadro
-        updateBoardDetails(state, action) {
+        updateBoardDetails: (state, action) => {
             const { boardId, title, description } = action.payload;
-            const board = state.boards.find(b => b.id === boardId);
+            boardsAdapter.updateOne(state.boards, {
+                id: boardId,
+                changes: { title, description }
+            });
+        },
+        deleteBoard: (state, action) => {
+            const boardId = action.payload;
+            const board = state.boards.entities[boardId];
             if (board) {
-                board.title = title;
-                board.description = description;
-            }
-        },
-        deleteBoard(state, action) {
-            state.boards = state.boards.filter(b => b.id !== action.payload);
-        },
-
-        // --- Reducers de Colunas (Columns) ---
-        addColumn(state, action) {
-            const { boardId, newColumn } = action.payload;
-            const board = state.boards.find(b => b.id === boardId);
-            if (board) {
-                if (!board.columns) board.columns = [];
-                board.columns.push(newColumn);
-            }
-        },
-        deleteColumn(state, action) {
-            const { boardId, columnId } = action.payload;
-            const board = state.boards.find(b => b.id === boardId);
-            if (board && board.columns) {
-                board.columns = board.columns.filter(c => c.id !== columnId);
-            }
-        },
-
-        // --- Reducers de Cartões (Cards) ---
-        addCard(state, action) {
-            const { boardId, columnId, newCard } = action.payload;
-            const board = state.boards.find(b => b.id === boardId);
-            if (board && board.columns) {
-                const column = board.columns.find(c => c.id === columnId);
-                if (column) {
-                    if (!column.cards) column.cards = [];
-                    column.cards.push(newCard);
-                }
-            }
-        },
-        updateCard(state, action) {
-            const { boardId, columnId, updatedCard } = action.payload;
-            const board = state.boards.find(b => b.id === boardId);
-            if (board && board.columns) {
-                const column = board.columns.find(c => c.id === columnId);
-                if (column && column.cards) {
-                    const cardIndex = column.cards.findIndex(c => c.id === updatedCard.id);
-                    if (cardIndex !== -1) {
-                        column.cards[cardIndex] = { ...column.cards[cardIndex], ...updatedCard };
+                // Deletar colunas associadas e seus cartões
+                board.columns.forEach(columnId => {
+                    const column = state.columns.entities[columnId];
+                    if (column && column.cards) {
+                        cardsAdapter.removeMany(state.cards, column.cards);
                     }
-                }
+                    columnsAdapter.removeOne(state.columns, columnId);
+                });
+                boardsAdapter.removeOne(state.boards, boardId);
             }
         },
-        deleteCard(state, action) {
-            const { boardId, columnId, cardId } = action.payload;
-            const board = state.boards.find(b => b.id === boardId);
-            if (board && board.columns) {
-                const column = board.columns.find(c => c.id === columnId);
-                if (column && column.cards) {
-                    column.cards = column.cards.filter(card => card.id !== cardId);
-                }
+
+        addColumn: (state, action) => {
+            const { boardId, newColumn } = action.payload;
+            const board = state.boards.entities[boardId];
+            if (board) {
+                columnsAdapter.addOne(state.columns, { ...newColumn, cards: newColumn.cards || [] });
+                board.columns.push(newColumn.id); // Apenas adiciona o ID
             }
         },
-        moveCard(state, action) {
-            const { boardId, sourceColumnId, destColumnId, sourceIndex, destIndex } = action.payload;
-            const board = state.boards.find(b => b.id === boardId);
-
-            if (!board || !board.columns) return;
-
-            const sourceColumn = board.columns.find(c => c.id === sourceColumnId);
-            const destColumn = board.columns.find(c => c.id === destColumnId);
-
-            if (!sourceColumn || !destColumn) return;
-            
-            const [movedCard] = sourceColumn.cards.splice(sourceIndex, 1);
-
-            if (movedCard) {
-                if (!destColumn.cards) destColumn.cards = [];
-                destColumn.cards.splice(destIndex, 0, movedCard);
+        updateColumn: (state, action) => {
+            const { columnId, title } = action.payload;
+            columnsAdapter.updateOne(state.columns, {
+                id: columnId,
+                changes: { title }
+            });
+        },
+        deleteColumn: (state, action) => {
+            const { boardId, columnId } = action.payload;
+            const column = state.columns.entities[columnId];
+            if (column && column.cards) {
+                cardsAdapter.removeMany(state.cards, column.cards);
+            }
+            columnsAdapter.removeOne(state.columns, columnId);
+            const board = state.boards.entities[boardId];
+            if (board) {
+                board.columns = board.columns.filter(id => id !== columnId);
             }
         },
-        
-        // --- Reducers específicos para as novas funcionalidades ---
-        toggleArchiveCard(state, action) {
-            const { boardId, columnId, cardId } = action.payload;
-            const card = findCard(state, boardId, columnId, cardId);
+
+        addCard: (state, action) => {
+            const { columnId, newCard } = action.payload;
+            cardsAdapter.addOne(state.cards, newCard);
+            const column = state.columns.entities[columnId];
+            if (column) {
+                column.cards.push(newCard.id); // Apenas adiciona o ID
+            }
+        },
+        updateCard: (state, action) => {
+            const { updatedCard } = action.payload;
+            cardsAdapter.updateOne(state.cards, {
+                id: updatedCard.id,
+                changes: updatedCard
+            });
+        },
+        deleteCard: (state, action) => {
+            const { columnId, cardId } = action.payload;
+            cardsAdapter.removeOne(state.cards, cardId);
+            const column = state.columns.entities[columnId];
+            if (column) {
+                column.cards = column.cards.filter(id => id !== cardId);
+            }
+        },
+        moveCard: (state, action) => {
+            const { sourceColumnId, destColumnId, sourceIndex, destIndex, cardId } = action.payload;
+
+            const sourceColumn = state.columns.entities[sourceColumnId];
+            if (sourceColumn) {
+                sourceColumn.cards.splice(sourceIndex, 1);
+            }
+
+            const destColumn = state.columns.entities[destColumnId];
+            if (destColumn) {
+                destColumn.cards.splice(destIndex, 0, cardId);
+            }
+        },
+
+        toggleArchiveCard: (state, action) => {
+            const { cardId } = action.payload;
+            const card = state.cards.entities[cardId];
             if (card) {
-                card.isArchived = !card.isArchived;
+                cardsAdapter.updateOne(state.cards, {
+                    id: cardId,
+                    changes: { isArchived: !card.isArchived }
+                });
             }
         },
-        addChecklistItem(state, action) {
-            const { boardId, columnId, cardId, newItem } = action.payload;
-            const card = findCard(state, boardId, columnId, cardId);
+        addChecklistItem: (state, action) => {
+            const { cardId, newItem } = action.payload;
+            const card = state.cards.entities[cardId];
             if (card) {
-                if (!card.checklist) card.checklist = [];
-                card.checklist.push(newItem);
+                const newChecklist = [...(card.checklist || []), newItem];
+                cardsAdapter.updateOne(state.cards, {
+                    id: cardId,
+                    changes: { checklist: newChecklist }
+                });
             }
         },
-        toggleChecklistItem(state, action) {
-            const { boardId, columnId, cardId, itemId } = action.payload;
-            const card = findCard(state, boardId, columnId, cardId);
+        toggleChecklistItem: (state, action) => {
+            const { cardId, itemId } = action.payload;
+            const card = state.cards.entities[cardId];
             if (card && card.checklist) {
-                const item = card.checklist.find(i => i.id === itemId);
-                if (item) {
-                    item.completed = !item.completed;
-                }
+                const newChecklist = card.checklist.map(item =>
+                    item.id === itemId ? { ...item, completed: !item.completed } : item
+                );
+                cardsAdapter.updateOne(state.cards, {
+                    id: cardId,
+                    changes: { checklist: newChecklist }
+                });
             }
         },
-        deleteChecklistItem(state, action) {
-            const { boardId, columnId, cardId, itemId } = action.payload;
-            const card = findCard(state, boardId, columnId, cardId);
+        deleteChecklistItem: (state, action) => {
+            const { cardId, itemId } = action.payload;
+            const card = state.cards.entities[cardId];
             if (card && card.checklist) {
-                card.checklist = card.checklist.filter(i => i.id !== itemId);
+                const newChecklist = card.checklist.filter(i => i.id !== itemId);
+                cardsAdapter.updateOne(state.cards, {
+                    id: cardId,
+                    changes: { checklist: newChecklist }
+                });
             }
         }
     }
 });
 
-export const { 
-    setBoards, 
-    addBoard, 
-    updateBoardDetails, // Exporta a nova ação
+export const {
+    setAllData,
+    addBoard,
+    updateBoardDetails,
     deleteBoard,
     addColumn,
+    updateColumn,
     deleteColumn,
     addCard,
     updateCard,

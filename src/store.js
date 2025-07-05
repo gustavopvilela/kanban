@@ -2,6 +2,18 @@ import { configureStore } from '@reduxjs/toolkit';
 import boardsReducer from './features/boardsSlice';
 import themeReducer from './features/themeSlice';
 
+function debounce (func, wait) {
+    let timeout;
+    return function executedFunction (...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    }
+}
+
 // Função para carregar o estado COMPLETO do localStorage
 const loadState = () => {
     try {
@@ -36,9 +48,13 @@ const store = configureStore({
     preloadedState // Define o estado inicial da aplicação com os dados do localStorage
 });
 
+const debouncedSaveState = debounce(() => {
+    saveState(store.getState());
+}, 500);
+
 // "Ouve" todas as alterações no store e guarda o estado completo
 store.subscribe(() => {
-    saveState(store.getState());
+    debouncedSaveState();
 });
 
 export default store;

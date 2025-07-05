@@ -1,24 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { v4 as uuid } from 'uuid';
-// CORREÇÃO: Importa a nova ação 'toggleArchiveCard'
 import { addCard, updateCard, toggleArchiveCard } from '../../../features/boardsSlice';
 import Modal from '../../../components/Modal';
 import CustomDatePicker from './CustomDatePicker.jsx';
 import './styles/CardModal.css';
-// CORREÇÃO: Importa o ícone de arquivo
-import {
-    IconTrash,
-    IconCircleCheck,
-    IconCircle,
-    IconArchive,
-    IconPlus,
-    IconArchiveOff,
-    IconAlertTriangle, IconExclamationCircle, IconCheck
-} from '@tabler/icons-react';
-import {useToastContext} from "../../../contexts/ToastContext.jsx";
+import { IconTrash, IconCircleCheck, IconCircle, IconArchive, IconPlus, IconArchiveOff, IconAlertTriangle, IconExclamationCircle, IconCheck } from '@tabler/icons-react';
+import { useToastContext } from "../../../contexts/ToastContext.jsx";
 
-export default function CardModal({ isOpen, onClose, card, columnId, boardId }) {
+export default function CardModal({ isOpen, onClose, card, columnId }) { // boardId não é mais necessário aqui
     const dispatch = useDispatch();
     const { addToast } = useToastContext();
 
@@ -30,7 +20,6 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
     const [checklist, setChecklist] = useState([]);
     const [newChecklistItem, setNewChecklistItem] = useState('');
 
-    // Efeito para popular o formulário quando um cartão existente é passado (modo de edição)
     useEffect(() => {
         if (isOpen && card) {
             setTitle(card.title || '');
@@ -39,8 +28,6 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
             setDueDate(card.dueDate ? card.dueDate.split('T')[0] : '');
             setChecklist(card.checklist || []);
 
-            /* Se o cartão está arquivado, uma mensagem informando que os dados não podem ser
-             *  editados aparece. */
             if (card.isArchived) {
                 addToast('Este cartão está arquivado e não pode ser editado.', {
                     type: 'warning',
@@ -49,7 +36,6 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
             }
 
         } else {
-            // Reseta o formulário para o estado inicial (modo de criação)
             setTitle('');
             setDescription('');
             setPriority('medium');
@@ -74,15 +60,12 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
             priority,
             dueDate,
             checklist,
-            // Mantém o estado de arquivamento atual se estiver a editar
             isArchived: card ? card.isArchived : false,
         };
 
         if (card) {
-            // Modo de Edição: atualiza o cartão existente
+            // Edição
             dispatch(updateCard({
-                boardId,
-                columnId,
                 updatedCard: { ...card, ...cardData }
             }));
 
@@ -91,9 +74,8 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
                 icon: <IconCheck size={24} />
             });
         } else {
-            // Modo de Criação: adiciona um novo cartão
+            // Criação
             dispatch(addCard({
-                boardId,
                 columnId,
                 newCard: { id: uuid(), ...cardData }
             }));
@@ -107,11 +89,9 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
     };
 
     const handleArchiveToggle = () => {
-        if (!card) return; /* Só é possível arquivar um cartão se ele existir */
+        if (!card) return;
 
         dispatch(toggleArchiveCard({
-            boardId,
-            columnId,
             cardId: card.id
         }));
 
@@ -120,8 +100,7 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
                 type: 'info',
                 icon: <IconArchive size={24} />
             });
-        }
-        else {
+        } else {
             addToast('Cartão desarquivado.', {
                 type: 'info',
                 icon: <IconArchive size={24} />
@@ -155,7 +134,6 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
     };
 
     const formGroup = `form-group ${card && card.isArchived ? "readonly-container" : ""}`;
-
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
@@ -231,10 +209,9 @@ export default function CardModal({ isOpen, onClose, card, columnId, boardId }) 
                         </div>
                     </div>
 
-
                     <div className="modal-actions">
                         {card && (
-                             <button
+                            <button
                                 type="button"
                                 className="btn-secondary btn-archive"
                                 onClick={handleArchiveToggle}
