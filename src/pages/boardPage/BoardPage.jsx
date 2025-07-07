@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useMemo, useState} from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { v4 as uuid } from 'uuid';
@@ -22,22 +22,14 @@ import {
 } from "@tabler/icons-react";
 import SettingsMenu from "../../components/SettingsMenu.jsx";
 import Modal from '../../components/Modal';
+import {makeSelectBoard} from "../../features/selectors.js";
 
 export default function BoardPage() {
     const { id: boardId } = useParams();
     const dispatch = useDispatch();
 
-    const board = useSelector(state => {
-        const boardData = state.boards.boards.entities[boardId];
-        if (!boardData) return null;
-        const columns = boardData.columns.map(columnId => {
-            const columnData = state.boards.columns.entities[columnId];
-            if (!columnData) return null;
-            const cards = columnData.cards.map(cardId => state.boards.cards.entities[cardId]).filter(Boolean);
-            return { ...columnData, cards };
-        }).filter(Boolean);
-        return { ...boardData, columns };
-    });
+    const selectBoard = useMemo(makeSelectBoard, []);
+    const board = useSelector(state => selectBoard(state, boardId));
 
     const [activeItem, setActiveItem] = useState(null);
     const [isCardModalOpen, setIsCardModalOpen] = useState(false);

@@ -10,6 +10,7 @@ import SearchResults from './components/SearchResults';
 import './Dashboard.css';
 
 import Modal from '../../components/Modal.jsx';
+import {selectAllBoards, selectSearchData} from "../../features/selectors.js";
 
 // Função auxiliar para destacar o texto encontrado
 // NOVA função highlightMatch corrigida
@@ -49,11 +50,7 @@ const normalizeText = (text) => {
 export default function Dashboard() {
     const dispatch = useDispatch();
 
-    const { boards, columns, cards } = useSelector(state => ({
-        boards: state.boards.boards.entities,
-        columns: state.boards.columns.entities,
-        cards: state.boards.cards.entities,
-    }));
+    const { boards, columns, cards } = useSelector(selectSearchData);
 
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -128,9 +125,7 @@ export default function Dashboard() {
         setSearchQuery(e.target.value);
     };
 
-    
-
-    const allBoards = useSelector(state => Object.values(state.boards.boards.entities || {}));
+    const allBoards = useSelector(selectAllBoards);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newBoardTitle, setNewBoardTitle] = useState('');
