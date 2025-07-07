@@ -309,3 +309,44 @@
 .btn-icon:active {
     transform: scale(1);
 }
+
+/* Estilos para o contador e limite de WIP */
+.column-title-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+}
+
+.column-title-container h3 {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.card-count {
+    background-color: var(--border-color);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: var(--radius-lg);
+    white-space: nowrap;
+}
+
+.card-count.wip-limit-exceeded {
+    background-color: var(--danger-bg);
+    color: var(--danger-text);
+    border: 1px solid var(--danger-color);
+}
+
+/* Estilo para a área de drop quando o limite é excedido */
+.cards-container.wip-limit-blocked {
+    background-color: var(--danger-bg);
+}
+
+/* Estilo para a nova opção no DropdownMenu */
+.clear-option:hover, .clear-option:focus {
+    background-color: var(--warning-bg) !important;
+    color: var(--warning-text) !important;
+}

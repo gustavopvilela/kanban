@@ -96,3 +96,35 @@
 .badge.priority-low {
     color: #10b981;
 }
+
+/* Estilos para o badge da checklist com a barra */
+.checklist-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.35rem 0.6rem;
+    height: auto;
+    width: 100px; /* Largura fixa para a barra */
+}
+
+.checklist-badge .progress-bar-background {
+    width: 100%;
+    height: 4px;
+    background-color: var(--border-color);
+    border-radius: 2px;
+    margin-top: 4px;
+    overflow: hidden; /* Garante que a barra interna não ultrapasse as bordas arredondadas */
+}
+
+.checklist-badge .progress-bar-foreground {
+    height: 100%;
+    background-color: var(--success-color);
+    border-radius: 2px;
+    transition: width 0.3s ease-in-out;
+}
+
+.checklist-badge > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}

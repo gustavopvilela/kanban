@@ -10,15 +10,9 @@ const initialBoardsState = boardsAdapter.getInitialState();
 const initialColumnsState = columnsAdapter.getInitialState();
 const initialCardsState = cardsAdapter.getInitialState();
 
-/* Função para encontrar um cartão */
-const findCard = (state, cardId) => {
-    return state.cards.entities[cardId];
-}
-
 const boardsSlice = createSlice({
     name: "boards",
     
-    /* O estado é um objeto com 3 parâmetros: boards, columns e cards */
     initialState: {
         boards: initialBoardsState,
         columns: initialColumnsState,
@@ -32,6 +26,7 @@ const boardsSlice = createSlice({
             cardsAdapter.setAll(state.cards, cards || []);
         },
 
+        // --- Ações do Quadro ---
         addBoard: (state, action) => {
             const board = action.payload;
             boardsAdapter.addOne(state.boards, { ...board, columns: board.columns || [] });
@@ -47,7 +42,6 @@ const boardsSlice = createSlice({
             const boardId = action.payload;
             const board = state.boards.entities[boardId];
             if (board) {
-                // Deletar colunas associadas e seus cartões
                 board.columns.forEach(columnId => {
                     const column = state.columns.entities[columnId];
                     if (column && column.cards) {
@@ -59,12 +53,13 @@ const boardsSlice = createSlice({
             }
         },
 
+        // --- Ações da Coluna ---
         addColumn: (state, action) => {
             const { boardId, newColumn } = action.payload;
             const board = state.boards.entities[boardId];
             if (board) {
                 columnsAdapter.addOne(state.columns, { ...newColumn, cards: newColumn.cards || [] });
-                board.columns.push(newColumn.id); // Apenas adiciona o ID
+                board.columns.push(newColumn.id);
             }
         },
         updateColumn: (state, action) => {
@@ -86,13 +81,22 @@ const boardsSlice = createSlice({
                 board.columns = board.columns.filter(id => id !== columnId);
             }
         },
+        moveColumn: (state, action) => {
+            const { boardId, sourceIndex, destinationIndex } = action.payload;
+            const board = state.boards.entities[boardId];
+            if (board) {
+                const [movedColumn] = board.columns.splice(sourceIndex, 1);
+                board.columns.splice(destinationIndex, 0, movedColumn);
+            }
+        },
 
+        // --- Ações do Cartão ---
         addCard: (state, action) => {
             const { columnId, newCard } = action.payload;
             cardsAdapter.addOne(state.cards, newCard);
             const column = state.columns.entities[columnId];
             if (column) {
-                column.cards.push(newCard.id); // Apenas adiciona o ID
+                column.cards.push(newCard.id);
             }
         },
         updateCard: (state, action) => {
@@ -112,18 +116,15 @@ const boardsSlice = createSlice({
         },
         moveCard: (state, action) => {
             const { sourceColumnId, destColumnId, sourceIndex, destIndex, cardId } = action.payload;
-
             const sourceColumn = state.columns.entities[sourceColumnId];
             if (sourceColumn) {
                 sourceColumn.cards.splice(sourceIndex, 1);
             }
-
             const destColumn = state.columns.entities[destColumnId];
             if (destColumn) {
                 destColumn.cards.splice(destIndex, 0, cardId);
             }
         },
-
         toggleArchiveCard: (state, action) => {
             const { cardId } = action.payload;
             const card = state.cards.entities[cardId];
@@ -139,10 +140,7 @@ const boardsSlice = createSlice({
             const card = state.cards.entities[cardId];
             if (card) {
                 const newChecklist = [...(card.checklist || []), newItem];
-                cardsAdapter.updateOne(state.cards, {
-                    id: cardId,
-                    changes: { checklist: newChecklist }
-                });
+                cardsAdapter.updateOne(state.cards, { id: cardId, changes: { checklist: newChecklist } });
             }
         },
         toggleChecklistItem: (state, action) => {
@@ -152,10 +150,7 @@ const boardsSlice = createSlice({
                 const newChecklist = card.checklist.map(item =>
                     item.id === itemId ? { ...item, completed: !item.completed } : item
                 );
-                cardsAdapter.updateOne(state.cards, {
-                    id: cardId,
-                    changes: { checklist: newChecklist }
-                });
+                cardsAdapter.updateOne(state.cards, { id: cardId, changes: { checklist: newChecklist } });
             }
         },
         deleteChecklistItem: (state, action) => {
@@ -163,10 +158,7 @@ const boardsSlice = createSlice({
             const card = state.cards.entities[cardId];
             if (card && card.checklist) {
                 const newChecklist = card.checklist.filter(i => i.id !== itemId);
-                cardsAdapter.updateOne(state.cards, {
-                    id: cardId,
-                    changes: { checklist: newChecklist }
-                });
+                cardsAdapter.updateOne(state.cards, { id: cardId, changes: { checklist: newChecklist } });
             }
         }
     }
@@ -180,6 +172,7 @@ export const {
     addColumn,
     updateColumn,
     deleteColumn,
+    moveColumn,
     addCard,
     updateCard,
     deleteCard,

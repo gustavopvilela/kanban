@@ -3,12 +3,16 @@ import { useParams, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { v4 as uuid } from 'uuid';
 import './BoardPage.css';
-import { addColumn, deleteColumn, moveCard } from '../../features/boardsSlice';
+import { addColumn, deleteColumn, moveCard, updateColumn, deleteCard, moveColumn } from '../../features/boardsSlice';
 import DroppableColumn from './components/DroppableColumn';
-import CardModal from './components/CardModal';
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import {IconArrowLeft, IconPlus, IconArchive, IconArchiveOff, IconAlertTriangle, IconCalendar} from "@tabler/icons-react";
+import DraggableCard from './components/DraggableCard.jsx';
+import CardModal from './components/CardModal.jsx';
+import ColumnModal from './components/ColumnModal.jsx';
+import { DndContext, DragOverlay, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import { IconArrowLeft, IconPlus, IconArchive, IconArchiveOff, IconAlertTriangle, IconCalendar, IconAlertCircle } from "@tabler/icons-react";
 import SettingsMenu from "../../components/SettingsMenu.jsx";
+import Modal from '../../components/Modal';
 
 export default function BoardPage() {
     const { id: boardId } = useParams();
@@ -17,149 +21,203 @@ export default function BoardPage() {
     const board = useSelector(state => {
         const boardData = state.boards.boards.entities[boardId];
         if (!boardData) return null;
-
         const columns = boardData.columns.map(columnId => {
             const columnData = state.boards.columns.entities[columnId];
             if (!columnData) return null;
-
             const cards = columnData.cards.map(cardId => state.boards.cards.entities[cardId]).filter(Boolean);
             return { ...columnData, cards };
         }).filter(Boolean);
-
         return { ...boardData, columns };
     });
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [activeItem, setActiveItem] = useState(null);
+    const [isCardModalOpen, setIsCardModalOpen] = useState(false);
     const [editingCard, setEditingCard] = useState(null);
     const [activeColumnId, setActiveColumnId] = useState(null);
-
+    const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
+    const [editingColumn, setEditingColumn] = useState(null);
+    const [isDeleteColumnModalOpen, setIsDeleteColumnModalOpen] = useState(false);
+    const [columnToDelete, setColumnToDelete] = useState(null);
+    const [isDeleteCardModalOpen, setIsDeleteCardModalOpen] = useState(false);
+    const [cardToDelete, setCardToDelete] = useState(null);
     const [showArchived, setShowArchived] = useState(false);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
-            activationConstraint: { distance: 8 }
+            activationConstraint: {
+                distance: 10,
+            },
         })
     );
+
+    function handleDragStart(event) {
+        const { active } = event;
+        setActiveItem(active.data.current);
+    }
+
+    function onDragCancel() {
+        setActiveItem(null);
+    }
+
+    function handleDragEnd(event) {
+        const { active, over } = event;
+        setActiveItem(null);
+
+        if (!over) return;
+        
+        const activeId = active.id;
+        const overId = over.id;
+
+        if (activeId === overId) return;
+
+        const isActiveAColumn = active.data.current?.type === 'column';
+        const isActiveACard = active.data.current?.type === 'card';
+
+        if (isActiveAColumn) {
+            const activeColumnIndex = board.columns.findIndex(c => c.id === activeId);
+            const overColumnIndex = board.columns.findIndex(c => c.id === overId);
+            dispatch(moveColumn({
+                boardId,
+                sourceIndex: activeColumnIndex,
+                destinationIndex: overColumnIndex,
+            }));
+            return;
+        }
+
+        if (isActiveACard) {
+            const sourceCard = active.data.current.card;
+            const sourceColumn = board.columns.find(col => col.cards.some(c => c.id === sourceCard.id));
+            if (!sourceColumn) return;
+            const sourceColumnId = sourceColumn.id;
+            const sourceIndex = sourceColumn.cards.findIndex(c => c.id === sourceCard.id);
+
+            const destColumn = over.data.current?.type === 'column'
+                ? board.columns.find(c => c.id === overId)
+                : board.columns.find(col => col.cards.some(c => c.id === overId));
+            if (!destColumn) return;
+            const destColumnId = destColumn.id;
+            
+            let destIndex;
+            if (over.data.current?.type === 'card') {
+                destIndex = destColumn.cards.findIndex(c => c.id === overId);
+            } else {
+                destIndex = destColumn.cards.length;
+            }
+
+            dispatch(moveCard({
+                sourceColumnId,
+                destColumnId,
+                sourceIndex,
+                destIndex,
+                cardId: active.id
+            }));
+        }
+    }
 
     const handleOpenAddCardModal = (columnId) => {
         setEditingCard(null);
         setActiveColumnId(columnId);
-        setIsModalOpen(true);
+        setIsCardModalOpen(true);
     };
 
     const handleOpenEditCardModal = (card, columnId) => {
         setEditingCard(card);
         setActiveColumnId(columnId);
-        setIsModalOpen(true);
+        setIsCardModalOpen(true);
     };
 
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
+    const handleCloseCardModal = () => {
+        setIsCardModalOpen(false);
         setEditingCard(null);
         setActiveColumnId(null);
     };
 
-    const handleAddColumn = () => {
-        const title = prompt('Digite o título da nova coluna:');
-        if (title && title.trim()) {
-            const newColumn = { id: uuid(), title: title.trim(), cards: [] };
+    const handleOpenAddColumnModal = () => {
+        setEditingColumn(null);
+        setIsColumnModalOpen(true);
+    };
+
+    const handleOpenEditColumnModal = (column) => {
+        setEditingColumn(column);
+        setIsColumnModalOpen(true);
+    };
+
+    const handleCloseColumnModal = () => {
+        setIsColumnModalOpen(false);
+        setEditingColumn(null);
+    };
+
+    const handleSaveColumn = (title) => {
+        if (editingColumn) {
+            dispatch(updateColumn({ columnId: editingColumn.id, title }));
+        } else {
+            const newColumn = { id: uuid(), title, cards: [] };
             dispatch(addColumn({ boardId, newColumn }));
         }
     };
-
+    
     const handleRemoveColumn = (columnId) => {
         const column = board.columns.find(c => c.id === columnId);
-        if (!column) return;
-
-        const cardCount = column.cards?.length || 0;
-        const message = cardCount > 0
-            ? `Tem certeza que deseja remover a coluna "${column.title}"? Isso também removerá ${cardCount} cartão(s).`
-            : `Tem certeza que deseja remover a coluna "${column.title}"?`;
-
-        if (window.confirm(message)) {
-            dispatch(deleteColumn({ boardId, columnId }));
+        if (column) {
+            setColumnToDelete(column);
+            setIsDeleteColumnModalOpen(true);
         }
     };
 
-    const handleDragEnd = (event) => {
-        const { active, over } = event;
-        if (!over || active.id === over.id) return;
-
-        const sourceCard = active.data.current.card;
-        const sourceColumnId = active.data.current.columnId;
-
-        const destColumnId = over.data.current?.type === 'column'
-            ? over.id
-            : over.data.current?.columnId;
-
-        if (!destColumnId) return;
-
-        const sourceColumn = board.columns.find(c => c.id === sourceColumnId);
-        const destColumn = board.columns.find(c => c.id === destColumnId);
-
-        if (!sourceColumn || !destColumn) return;
-
-        const sourceIndex = sourceColumn.cards.findIndex(c => c.id === sourceCard.id);
-
-        let destIndex;
-        if (over.data.current?.type === 'card') {
-            destIndex = destColumn.cards.findIndex(c => c.id === over.id);
-        } else {
-            destIndex = destColumn.cards.length;
+     const handleConfirmDeleteColumn = () => {
+        if (columnToDelete) {
+            dispatch(deleteColumn({ boardId, columnId: columnToDelete.id }));
+            setIsDeleteColumnModalOpen(false);
+            setColumnToDelete(null);
         }
+    };
 
-        dispatch(moveCard({
-            boardId, // boardId não é mais necessário no reducer, mas mantemos por consistência se necessário
-            sourceColumnId,
-            destColumnId,
-            sourceIndex,
-            destIndex,
-            cardId: active.id // Passamos o cardId diretamente
-        }));
+    const handleCloseDeleteColumnModal = () => {
+        setIsDeleteColumnModalOpen(false);
+        setColumnToDelete(null);
+    };
+
+    const handleOpenDeleteCardModal = (card) => {
+        setCardToDelete(card);
+        setIsCardModalOpen(false);
+        setIsDeleteCardModalOpen(true);
+    };
+
+    const handleConfirmDeleteCard = () => {
+        if (cardToDelete) {
+            const column = board.columns.find(col => col.cards.some(c => c.id === cardToDelete.id));
+            if (column) {
+                dispatch(deleteCard({ columnId: column.id, cardId: cardToDelete.id }));
+            }
+            setIsDeleteCardModalOpen(false);
+            setCardToDelete(null);
+        }
+    };
+    const handleCloseDeleteCardModal = () => {
+        setIsDeleteCardModalOpen(false);
+        setCardToDelete(null);
     };
 
     if (!board) {
-        return (
+        return ( 
             <div className="board-page">
-                <Link to="/" className="btn-secondary">
-                    <IconArrowLeft stroke={2} width={18} height={18} /> Página inicial
-                </Link>
-                <div className="error-message">
-                    <h2>Quadro não encontrado</h2>
-                    <p>O quadro que você está procurando não existe ou foi removido.</p>
-                </div>
+                <Link to="/" className="btn-secondary"><IconArrowLeft stroke={2} width={18} height={18} /> Página inicial</Link>
+                <div className="error-message"><h2>Quadro não encontrado</h2><p>O quadro que você está procurando não existe ou foi removido.</p></div>
             </div>
         );
     }
-
+    
     return (
         <div className="board-page">
             <div className="board-header">
-                <Link to="/" className="btn-secondary">
-                    <IconArrowLeft stroke={2} width={18} height={18} /> Página inicial
-                </Link>
+                <Link to="/" className="btn-secondary"><IconArrowLeft stroke={2} width={18} height={18} /> Página inicial</Link>
                 <h2>{board.title}</h2>
                 <div className="board-actions">
-                    {!showArchived && (
-                        <Link to={`/board/${boardId}/calendar`} className="btn-icon" title="Visão de Calendário">
-                            <IconCalendar size={24}/>
-                        </Link>
-                    )}
-
-                    <button
-                        onClick={() => setShowArchived(!showArchived)}
-                        className="btn-info"
-                        title={showArchived ? "Ocultar arquivados" : "Mostrar arquivados"}
-                    >
+                    {!showArchived && (<Link to={`/board/${boardId}/calendar`} className="btn-icon" title="Visão de Calendário"><IconCalendar size={24}/></Link>)}
+                    <button onClick={() => setShowArchived(!showArchived)} className="btn-info" title={showArchived ? "Ocultar arquivados" : "Mostrar arquivados"}>
                         {showArchived ? <IconArchiveOff/> : <IconArchive/>}
                     </button>
-
-                    {!showArchived && (
-                        <button onClick={handleAddColumn} className="dashboard-add-btn-small" title="Adicionar nova coluna">
-                            <IconPlus />
-                        </button>
-                    )}
-
+                    {!showArchived && (<button onClick={handleOpenAddColumnModal} className="dashboard-add-btn-small" title="Adicionar nova coluna"><IconPlus /></button>)}
                     <SettingsMenu/>
                 </div>
             </div>
@@ -173,44 +231,67 @@ export default function BoardPage() {
                     </div>
                 </div>
             )}
-
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            
+            <DndContext 
+                sensors={sensors} 
+                collisionDetection={closestCenter} 
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onDragCancel={onDragCancel}
+            >
                 <div className="columns-container">
-                    {board.columns?.length === 0 ? (
-                        <div className="empty-board">
-                            <p>Este quadro ainda não tem colunas.</p>
-                            <button onClick={handleAddColumn} className="btn-primary">
-                                Criar primeira coluna
-                            </button>
-                        </div>
-                    ) : (
-                        board.columns.map(column => {
-                            const filteredCards = column.cards
-                                ? column.cards.filter(card => showArchived ? card.isArchived : !card.isArchived)
-                                : [];
-
+                    <SortableContext items={board.columns.map(c => c.id)} strategy={horizontalListSortingStrategy}>
+                        {board.columns.map(column => {
+                            const cardsToShow = showArchived ? column.cards.filter(card => card.isArchived) : column.cards.filter(card => !card.isArchived);
+                            
                             return (
                                 <DroppableColumn
                                     key={column.id}
                                     column={column}
-                                    cards={filteredCards}
-                                    onAddCard={handleOpenAddCardModal}
-                                    onEditCard={handleOpenEditCardModal}
-                                    onRemoveColumn={handleRemoveColumn}
+                                    cards={cardsToShow}
+                                    onAddCard={() => handleOpenAddCardModal(column.id)}
+                                    onEditCard={(card) => handleOpenEditCardModal(card, column.id)}
+                                    onRemoveColumn={() => handleRemoveColumn(column.id)}
+                                    onEditColumn={() => handleOpenEditColumnModal(column)}
                                     isArchiveView={showArchived}
                                 />
                             );
-                        })
-                    )}
+                        })}
+                    </SortableContext>
                 </div>
+
+                <DragOverlay>
+                    {activeItem?.type === 'column' && <DroppableColumn column={activeItem.column} cards={[]} isArchiveView={true} />}
+                    {activeItem?.type === 'card' && <DraggableCard card={activeItem.card} onEdit={() => {}} />}
+                </DragOverlay>
             </DndContext>
 
-            <CardModal
-                isOpen={isModalOpen}
-                onClose={handleCloseModal}
-                columnId={activeColumnId}
-                card={editingCard}
-            />
+            <CardModal isOpen={isCardModalOpen} onClose={handleCloseCardModal} columnId={activeColumnId} card={editingCard} onDeleteCard={handleOpenDeleteCardModal} />
+            <ColumnModal isOpen={isColumnModalOpen} onClose={handleCloseColumnModal} onSave={handleSaveColumn} column={editingColumn} />
+            <Modal isOpen={isDeleteColumnModalOpen} onClose={handleCloseDeleteColumnModal}>
+                <h2 className="modal-title">Deletar coluna <i>"{columnToDelete?.title}"</i>?</h2>
+                <div className="modal-divider"></div>
+                <div className="delete-modal-form">
+                    <div className="delete-modal-icon"><IconAlertCircle stroke={2} size={64} /></div>
+                    <p className="delete-modal-text">Essa ação é irreversível e também removerá todos os cartões desta coluna. Deseja prosseguir?</p>
+                    <div className="modal-actions">
+                        <button type="button" className="btn-secondary" onClick={handleCloseDeleteColumnModal}>Cancelar</button>
+                        <button type="button" className="btn-danger" onClick={handleConfirmDeleteColumn}>Deletar Coluna</button>
+                    </div>
+                </div>
+            </Modal>
+            <Modal isOpen={isDeleteCardModalOpen} onClose={handleCloseDeleteCardModal}>
+                <h2 className="modal-title">Deletar cartão <i>"{cardToDelete?.title}"</i>?</h2>
+                <div className="modal-divider"></div>
+                <div className="delete-modal-form">
+                    <div className="delete-modal-icon"><IconAlertCircle stroke={2} size={64} /></div>
+                    <p className="delete-modal-text">Essa ação é irreversível. O cartão será excluído permanentemente.</p>
+                    <div className="modal-actions">
+                        <button type="button" className="btn-secondary" onClick={handleCloseDeleteCardModal}>Cancelar</button>
+                        <button type="button" className="btn-danger" onClick={handleConfirmDeleteCard}>Deletar Cartão</button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }
