@@ -10,7 +10,16 @@ import CardModal from './components/CardModal.jsx';
 import ColumnModal from './components/ColumnModal.jsx';
 import { DndContext, DragOverlay, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
-import { IconArrowLeft, IconPlus, IconArchive, IconArchiveOff, IconAlertTriangle, IconCalendar, IconAlertCircle } from "@tabler/icons-react";
+import {
+    IconArrowLeft,
+    IconPlus,
+    IconArchive,
+    IconArchiveOff,
+    IconAlertTriangle,
+    IconCalendar,
+    IconAlertCircle,
+    IconColumns, IconZoomQuestion
+} from "@tabler/icons-react";
 import SettingsMenu from "../../components/SettingsMenu.jsx";
 import Modal from '../../components/Modal';
 
@@ -240,24 +249,42 @@ export default function BoardPage() {
                 onDragCancel={onDragCancel}
             >
                 <div className="columns-container">
-                    <SortableContext items={board.columns.map(c => c.id)} strategy={horizontalListSortingStrategy}>
-                        {board.columns.map(column => {
-                            const cardsToShow = showArchived ? column.cards.filter(card => card.isArchived) : column.cards.filter(card => !card.isArchived);
-                            
-                            return (
-                                <DroppableColumn
-                                    key={column.id}
-                                    column={column}
-                                    cards={cardsToShow}
-                                    onAddCard={() => handleOpenAddCardModal(column.id)}
-                                    onEditCard={(card) => handleOpenEditCardModal(card, column.id)}
-                                    onRemoveColumn={() => handleRemoveColumn(column.id)}
-                                    onEditColumn={() => handleOpenEditColumnModal(column)}
-                                    isArchiveView={showArchived}
-                                />
-                            );
-                        })}
-                    </SortableContext>
+                    {board.columns?.length === 0 && !showArchived ? (
+                        <div className="empty-board">
+                            <IconZoomQuestion size={52} stroke={1.5}/>
+                            <div style={{height: 25}}></div>
+
+                            <p>Este quadro ainda não tem colunas.</p>
+                            <button onClick={handleOpenAddColumnModal} className="btn-primary">
+                                Criar primeira coluna
+                            </button>
+                        </div>
+                    ) : (
+                        <SortableContext items={board.columns.map(c => c.id)} strategy={horizontalListSortingStrategy}>
+                            {board.columns.map(column => {
+                                const cardsToShow = showArchived
+                                    ? column.cards.filter(card => card.isArchived)
+                                    : column.cards.filter(card => !card.isArchived);
+
+                                if (showArchived && cardsToShow.length === 0) {
+                                    return null;
+                                }
+
+                                return (
+                                    <DroppableColumn
+                                        key={column.id}
+                                        column={column}
+                                        cards={cardsToShow}
+                                        onAddCard={() => handleOpenAddCardModal(column.id)}
+                                        onEditCard={(card) => handleOpenEditCardModal(card, column.id)}
+                                        onRemoveColumn={() => handleRemoveColumn(column.id)}
+                                        onEditColumn={() => handleOpenEditColumnModal(column)}
+                                        isArchiveView={showArchived}
+                                    />
+                                );
+                            })}
+                        </SortableContext>
+                    )}
                 </div>
 
                 <DragOverlay>
