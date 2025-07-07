@@ -4,11 +4,37 @@ import { CSS } from '@dnd-kit/utilities';
 import { IconFlag, IconCalendar, IconChecklist, IconPencil } from '@tabler/icons-react';
 import './styles/DraggableCard.css';
 
+const ChecklistProgress = ({ checklist }) => {
+    // Continua a não mostrar nada se não houver checklist
+    if (!checklist || checklist.length === 0) {
+        return null;
+    }
+
+    const totalItems = checklist.length;
+    const completedItems = checklist.filter(item => item.completed).length;
+    
+    const progressPercentage = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
+
+    // CORREÇÃO: A condição que escondia o progresso em 0% foi removida.
+
+    return (
+        <div className="badge checklist-badge" title={`${completedItems} de ${totalItems} tarefas concluídas`}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <IconChecklist size={16} />
+                <span>{completedItems}/{totalItems}</span>
+            </div>
+            <div className="progress-bar-background">
+                <div 
+                    className="progress-bar-foreground" 
+                    style={{ width: `${progressPercentage}%` }}
+                ></div>
+            </div>
+        </div>
+    );
+};
+
 const CardBadges = ({ card }) => {
     const { priority, dueDate, checklist } = card;
-
-    const completedItems = checklist ? checklist.filter(item => item.completed).length : 0;
-    const totalItems = checklist ? checklist.length : 0;
 
     const priorityLabels = {
         low: 'Baixa',
@@ -29,17 +55,12 @@ const CardBadges = ({ card }) => {
                     {new Date(dueDate + 'T00:00:00').toLocaleDateString()}
                 </span>
             )}
-            {checklist && totalItems > 0 && (
-                <span className="badge" title="Progresso da checklist">
-                    <IconChecklist size={16} />
-                    {completedItems}/{totalItems}
-                </span>
-            )}
+            <ChecklistProgress checklist={checklist} />
         </div>
     );
 };
 
-export default function DraggableCard({ card, columnId, onEdit }) {
+const DraggableCard = React.memo(({ card, onEdit }) => {
     const {
         attributes,
         listeners,
@@ -52,7 +73,6 @@ export default function DraggableCard({ card, columnId, onEdit }) {
         data: {
             type: 'card',
             card,
-            columnId,
         },
     });
 
@@ -91,4 +111,6 @@ export default function DraggableCard({ card, columnId, onEdit }) {
             </div>
         </div>
     );
-}
+});
+
+export default DraggableCard;

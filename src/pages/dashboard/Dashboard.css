@@ -437,6 +437,7 @@
     font-size: 64px;
     margin-bottom: 24px;
     opacity: 0.6;
+    color: var(--text-primary);
 }
 
 /* Empty state title */

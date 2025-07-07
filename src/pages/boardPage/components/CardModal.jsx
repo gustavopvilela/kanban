@@ -8,7 +8,7 @@ import './styles/CardModal.css';
 import { IconTrash, IconCircleCheck, IconCircle, IconArchive, IconPlus, IconArchiveOff, IconAlertTriangle, IconExclamationCircle, IconCheck } from '@tabler/icons-react';
 import { useToastContext } from "../../../contexts/ToastContext.jsx";
 
-export default function CardModal({ isOpen, onClose, card, columnId }) { // boardId não é mais necessário aqui
+export default function CardModal({ isOpen, onClose, card, columnId, onDeleteCard }) { // Adicionada a prop onDeleteCard
     const dispatch = useDispatch();
     const { addToast } = useToastContext();
 
@@ -19,6 +19,8 @@ export default function CardModal({ isOpen, onClose, card, columnId }) { // boar
     const [dueDate, setDueDate] = useState('');
     const [checklist, setChecklist] = useState([]);
     const [newChecklistItem, setNewChecklistItem] = useState('');
+
+    const isEditing = card != null;
 
     useEffect(() => {
         if (isOpen && card) {
@@ -35,12 +37,14 @@ export default function CardModal({ isOpen, onClose, card, columnId }) { // boar
                 });
             }
 
-        } else {
+        } else if (isOpen) {
+            // Reset para um novo cartão
             setTitle('');
             setDescription('');
             setPriority('medium');
             setDueDate('');
             setChecklist([]);
+            setNewChecklistItem('');
         }
     }, [isOpen, card, addToast]);
 
@@ -68,45 +72,26 @@ export default function CardModal({ isOpen, onClose, card, columnId }) { // boar
             dispatch(updateCard({
                 updatedCard: { ...card, ...cardData }
             }));
-
-            addToast('Cartão atualizado com sucesso!', {
-                type: 'success',
-                icon: <IconCheck size={24} />
-            });
+            addToast('Cartão atualizado com sucesso!', { type: 'success', icon: <IconCheck size={24} /> });
         } else {
             // Criação
             dispatch(addCard({
                 columnId,
                 newCard: { id: uuid(), ...cardData }
             }));
-
-            addToast('Cartão criado com sucesso!', {
-                type: 'success',
-                icon: <IconCheck size={24} />
-            });
+            addToast('Cartão criado com sucesso!', { type: 'success', icon: <IconCheck size={24} /> });
         }
         onClose();
     };
 
     const handleArchiveToggle = () => {
         if (!card) return;
-
-        dispatch(toggleArchiveCard({
-            cardId: card.id
-        }));
-
+        dispatch(toggleArchiveCard({ cardId: card.id }));
         if (!card.isArchived) {
-            addToast('Cartão arquivado. Acesse a página de itens arquivados para visualizar.', {
-                type: 'info',
-                icon: <IconArchive size={24} />
-            });
+            addToast('Cartão arquivado.', { type: 'info', icon: <IconArchive size={24} /> });
         } else {
-            addToast('Cartão desarquivado.', {
-                type: 'info',
-                icon: <IconArchive size={24} />
-            });
+            addToast('Cartão desarquivado.', { type: 'info', icon: <IconArchiveOff size={24} /> });
         }
-
         onClose();
     };
 
@@ -128,7 +113,6 @@ export default function CardModal({ isOpen, onClose, card, columnId }) { // boar
         ));
     };
 
-
     const handleDeleteChecklistItem = (itemId) => {
         setChecklist(checklist.filter(item => item.id !== itemId));
     };
@@ -138,11 +122,12 @@ export default function CardModal({ isOpen, onClose, card, columnId }) { // boar
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <div className="card-modal-content">
-                <h2 className="modal-title">{card ? (card.isArchived ? "Desarquivar cartão?" : "Editar cartão") : "Criar novo cartão" }</h2>
+                <h2 className="modal-title">{isEditing ? "Editar Cartão" : "Criar Novo Cartão" }</h2>
                 <div className="modal-divider"></div>
 
                 <form onSubmit={handleSave}>
-                    <div className={formGroup}>
+                    {/* ... campos de título, descrição, prioridade, etc ... */}
+                     <div className={formGroup}>
                         <label htmlFor="cardTitle">Título</label>
                         <input
                             type="text"
@@ -204,30 +189,40 @@ export default function CardModal({ isOpen, onClose, card, columnId }) { // boar
                                 onChange={(e) => setNewChecklistItem(e.target.value)}
                                 placeholder="Adicionar um item..."
                             />
-
                             <button type="button" className="btn-secondary add-item-btn" onClick={handleAddChecklistItem}><IconPlus/></button>
                         </div>
                     </div>
 
-                    <div className="modal-actions">
-                        {card && (
-                            <button
-                                type="button"
-                                className="btn-secondary btn-archive"
-                                onClick={handleArchiveToggle}
-                                title={card.isArchived ? "Desarquivar cartão" : "Arquivar cartão"}
-                            >
-                                {card.isArchived ? <IconArchiveOff size={16}/> : <IconArchive size={16}/>}
-                            </button>
-                        )}
-
-                        {(!card || !card.isArchived) && (
-                            <button type="button" className="btn-danger" onClick={onClose}>Cancelar</button>
-                        )}
-
-                        {(!card || !card.isArchived) && (
-                            <button type="submit" className="btn-primary">Salvar</button>
-                        )}
+                    <div className="modal-actions" style={{ justifyContent: 'space-between' }}>
+                        <div> {/* Container para os botões da esquerda */}
+                            {isEditing && (
+                                <>
+                                    <button
+                                        type="button"
+                                        className="btn-secondary"
+                                        onClick={handleArchiveToggle}
+                                        title={card.isArchived ? "Desarquivar cartão" : "Arquivar cartão"}
+                                    >
+                                        {card.isArchived ? <IconArchiveOff size={16}/> : <IconArchive size={16}/>}
+                                    </button>
+                                    {/* --- NOVO BOTÃO DE EXCLUSÃO --- */}
+                                    <button
+                                        type="button"
+                                        className="btn-danger"
+                                        onClick={() => onDeleteCard(card)} // Chama a função passada por prop
+                                        style={{ marginLeft: '8px' }}
+                                    >
+                                        <IconTrash size={16} />
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                        <div> {/* Container para os botões da direita */}
+                            <button type="button" className="btn-secondary" onClick={onClose} style={{ marginRight: '8px' }}>Cancelar</button>
+                            {(!card || !card.isArchived) && (
+                                <button type="submit" className="btn-primary">Salvar</button>
+                            )}
+                        </div>
                     </div>
                 </form>
             </div>
