@@ -8,12 +8,14 @@ import store, {persistor} from './store';
 import './styles/globals.css';
 import LoadingSpinner from "./components/LoadingSpinner.jsx";
 
+const basename = import.meta.env.PROD ? '/kanban' : '/';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <React.StrictMode>
         <Provider store={store}>
             <PersistGate loading={<LoadingSpinner message="Carregando dados..." />} persistor={persistor}>
-                <BrowserRouter>
+                <BrowserRouter basename={basename}>
                     <App />
                 </BrowserRouter>
             </PersistGate>
