@@ -8,7 +8,7 @@ import store, {persistor} from './store';
 import './styles/globals.css';
 import LoadingSpinner from "./components/LoadingSpinner.jsx";
 
-const basename = import.meta.env.PROD ? '/kanban' : '/';
+const basename = import.meta.env.PROD ? '/kanban' : '/kanban';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
