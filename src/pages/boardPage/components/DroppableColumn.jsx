@@ -4,6 +4,7 @@ import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-
 import { CSS } from '@dnd-kit/utilities';
 import DraggableCard from './DraggableCard';
 import EmptyColumnMessage from './EmptyColumnMessage';
+import QuickAddCard from './QuickAddCard';
 import { IconPlus, IconDotsVertical } from "@tabler/icons-react";
 import DropdownMenu from '../../../components/DropdownMenu.jsx';
 
@@ -14,7 +15,9 @@ export default function DroppableColumn({
     onEditCard,
     onRemoveColumn,
     onEditColumn,
-    isArchiveView
+    isArchiveView,
+    isMultiSelectEnabled,
+    selectedCardIds
 }) {
     const {
         setNodeRef: setSortableNodeRef,
@@ -78,9 +81,10 @@ export default function DroppableColumn({
                 {!isArchiveView && (
                     <div className="column-actions">
                         <button
+                            // A prop onAddCard agora abre o modal completo, para detalhes
                             onClick={() => onAddCard(column.id)}
                             className="btn-secondary btn-small"
-                            title="Adicionar novo cartão"
+                            title="Adicionar novo cartão com detalhes"
                         >
                             <IconPlus stroke={2} width={16} height={16} />
                         </button>
@@ -95,7 +99,7 @@ export default function DroppableColumn({
                             >
                                 <IconDotsVertical stroke={2} width={16} height={16} />
                             </button>
-                             <DropdownMenu
+                            <DropdownMenu
                                 isOpen={isDropdownOpen}
                                 onClose={closeDropdown}
                                 onEdit={handleEdit}
@@ -107,11 +111,17 @@ export default function DroppableColumn({
                 )}
             </div>
 
+            {!isArchiveView && (
+                <div className="quick-add-container">
+                    <QuickAddCard columnId={column.id} />
+                </div>
+            )}
+
             <div
                 ref={setDroppableNodeRef}
                 className={`cards-container ${isOver ? 'drag-over' : ''}`}
             >
-                {cards.length === 0 ? (
+                {cards.length === 0 && !isArchiveView ? ( // Não mostrar mensagem em modo arquivado
                     <div className="empty-column">
                         <EmptyColumnMessage isOver={isOver} />
                     </div>
@@ -125,6 +135,8 @@ export default function DroppableColumn({
                                 key={card.id}
                                 card={card}
                                 onEdit={() => onEditCard(card, column.id)}
+                                isMultiSelectEnabled={isMultiSelectEnabled}
+                                isSelected={selectedCardIds.includes(card.id)}
                             />
                         ))}
                     </SortableContext>

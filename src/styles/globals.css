@@ -21,6 +21,10 @@ html, body {
     overflow-x: hidden;
 }
 
+body {
+    background-color: var(--background-color);
+}
+
 html.light {
     --primary-color: #7c3aed;
     --primary-hover: #6d28d9;

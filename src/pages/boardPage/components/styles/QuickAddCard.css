@@ -1,0 +1,64 @@
+.quick-add-placeholder {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.quick-add-placeholder:hover {
+    background-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.quick-add-form {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.quick-add-form input[type="text"] {
+    width: 100%;
+    padding: 10px 36px 10px 12px; /* Espaço à direita para o botão X */
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background-color: var(--surface-color);
+    color: var(--text-primary);
+    font-size: 14px;
+    box-shadow: var(--shadow-sm);
+}
+
+.quick-add-form input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-hover);
+}
+
+.quick-add-cancel-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.quick-add-cancel-btn:hover {
+    background-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.quick-add-actions {
+    display: none;
+}

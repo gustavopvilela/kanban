@@ -41,10 +41,14 @@
     background-color: var(--surface-color);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
-    min-width: 300px;
+    min-width: 350px;
     max-width: 350px;
     border: 2px solid var(--border-color);
     transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 290px;
+    max-height: calc(100vh - 150px);
 }
 
 .column:hover {
@@ -61,6 +65,7 @@
     border-bottom: 1px solid var(--border-color);
     background-color: var(--column-header);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    flex-shrink: 0;
 }
 
 .column-header h3 {
@@ -74,6 +79,11 @@
     white-space: nowrap;
 }
 
+.quick-add-container {
+    padding: 8px 8px;
+    flex-shrink: 0;
+}
+
 .column-actions {
     display: flex;
     gap: 8px;
@@ -82,10 +92,11 @@
 
 .cards-container {
     padding: 16px;
-    min-height: 200px;
-    max-height: 70vh;
+    min-height: 100px;
     overflow-y: auto;
+    flex-grow: 1;
     transition: background-color 0.2s ease;
+    min-height: 0;
 }
 
 .cards-container.drag-over {
@@ -349,4 +360,69 @@
 .clear-option:hover, .clear-option:focus {
     background-color: var(--warning-bg) !important;
     color: var(--warning-text) !important;
+}
+
+/* Estilos para a Barra de Ação da Seleção Múltipla */
+.multi-select-action-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--surface-color);
+    color: var(--text-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    z-index: 100;
+    border: 1px solid var(--border-color);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+.selection-count {
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.selection-count span {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    margin-right: 8px;
+    font-weight: 600;
+}
+
+.selection-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.close-selection-mode {
+    margin-left: 16px;
+}
+
+/* Ajusta o padding inferior da página quando a seleção múltipla está ativa */
+.board-page.multi-select-active {
+    padding-bottom: 120px;
+}
+
+/* Ativação do botão de seleção */
+.btn-icon.active {
+    background-color: var(--border-color);
+    color: var(--text-primary);
+    transform: scale(1.1);
 }

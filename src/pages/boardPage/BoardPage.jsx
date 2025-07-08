@@ -1,9 +1,12 @@
-import React, {useMemo, useState} from 'react';
+import React, { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { v4 as uuid } from 'uuid';
 import './BoardPage.css';
-import { addColumn, deleteColumn, moveCard, updateColumn, deleteCard, moveColumn } from '../../features/boardsSlice';
+import {
+    addColumn, deleteColumn, moveCard, updateColumn, deleteCard, moveColumn,
+    toggleMultiSelectMode, archiveSelectedCards, deleteSelectedCards, clearCardSelection
+} from '../../features/boardsSlice';
 import DroppableColumn from './components/DroppableColumn';
 import DraggableCard from './components/DraggableCard.jsx';
 import CardModal from './components/CardModal.jsx';
@@ -18,11 +21,15 @@ import {
     IconAlertTriangle,
     IconCalendar,
     IconAlertCircle,
-    IconColumns, IconZoomQuestion
+    IconColumns,
+    IconZoomQuestion,
+    IconLayoutList,
+    IconX,
+    IconTrash, IconCopyCheck
 } from "@tabler/icons-react";
 import SettingsMenu from "../../components/SettingsMenu.jsx";
 import Modal from '../../components/Modal';
-import {makeSelectBoard} from "../../features/selectors.js";
+import { makeSelectBoard } from "../../features/selectors.js";
 
 export default function BoardPage() {
     const { id: boardId } = useParams();
@@ -30,6 +37,8 @@ export default function BoardPage() {
 
     const selectBoard = useMemo(makeSelectBoard, []);
     const board = useSelector(state => selectBoard(state, boardId));
+    const isMultiSelectEnabled = useSelector(state => state.boards.isMultiSelectEnabled);
+    const selectedCardIds = useSelector(state => state.boards.selectedCardIds);
 
     const [activeItem, setActiveItem] = useState(null);
     const [isCardModalOpen, setIsCardModalOpen] = useState(false);
@@ -43,6 +52,10 @@ export default function BoardPage() {
     const [cardToDelete, setCardToDelete] = useState(null);
     const [showArchived, setShowArchived] = useState(false);
 
+    const [isArchiveMultiModalOpen, setIsArchiveMultiModalOpen] = useState(false);
+    const [isDeleteMultiModalOpen, setIsDeleteMultiModalOpen] = useState(false);
+
+
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -52,6 +65,7 @@ export default function BoardPage() {
     );
 
     function handleDragStart(event) {
+        if (isMultiSelectEnabled) return; // Previne drag-and-drop no modo de seleção
         const { active } = event;
         setActiveItem(active.data.current);
     }
@@ -61,11 +75,12 @@ export default function BoardPage() {
     }
 
     function handleDragEnd(event) {
+        if (isMultiSelectEnabled) return; // Previne drag-and-drop no modo de seleção
         const { active, over } = event;
         setActiveItem(null);
 
         if (!over) return;
-        
+
         const activeId = active.id;
         const overId = over.id;
 
@@ -97,7 +112,7 @@ export default function BoardPage() {
                 : board.columns.find(col => col.cards.some(c => c.id === overId));
             if (!destColumn) return;
             const destColumnId = destColumn.id;
-            
+
             let destIndex;
             if (over.data.current?.type === 'card') {
                 destIndex = destColumn.cards.findIndex(c => c.id === overId);
@@ -156,7 +171,7 @@ export default function BoardPage() {
             dispatch(addColumn({ boardId, newColumn }));
         }
     };
-    
+
     const handleRemoveColumn = (columnId) => {
         const column = board.columns.find(c => c.id === columnId);
         if (column) {
@@ -165,7 +180,7 @@ export default function BoardPage() {
         }
     };
 
-     const handleConfirmDeleteColumn = () => {
+    const handleConfirmDeleteColumn = () => {
         if (columnToDelete) {
             dispatch(deleteColumn({ boardId, columnId: columnToDelete.id }));
             setIsDeleteColumnModalOpen(false);
@@ -199,26 +214,57 @@ export default function BoardPage() {
         setCardToDelete(null);
     };
 
+    const handleArchiveSelected = () => setIsArchiveMultiModalOpen(true);
+    const handleDeleteSelected = () => setIsDeleteMultiModalOpen(true);
+
+    const handleConfirmArchiveSelected = () => {
+        dispatch(archiveSelectedCards());
+        setIsArchiveMultiModalOpen(false);
+    };
+
+    const handleConfirmDeleteSelected = () => {
+        dispatch(deleteSelectedCards());
+        setIsDeleteMultiModalOpen(false);
+    };
+
+    const handleClearAndExitSelection = () => {
+        dispatch(clearCardSelection());
+        dispatch(toggleMultiSelectMode());
+    };
+
     if (!board) {
-        return ( 
+        return (
             <div className="board-page">
                 <Link to="/" className="btn-secondary"><IconArrowLeft stroke={2} width={18} height={18} /> Página inicial</Link>
                 <div className="error-message"><h2>Quadro não encontrado</h2><p>O quadro que você está procurando não existe ou foi removido.</p></div>
             </div>
         );
     }
-    
+
     return (
-        <div className="board-page">
+        <div className={`board-page ${isMultiSelectEnabled ? 'multi-select-active' : ''}`}>
             <div className="board-header">
                 <Link to="/" className="btn-secondary"><IconArrowLeft stroke={2} width={18} height={18} /> Página inicial</Link>
                 <h2>{board.title}</h2>
                 <div className="board-actions">
-                    {!showArchived && (<Link to={`/board/${boardId}/calendar`} className="btn-icon" title="Visão de Calendário"><IconCalendar size={24}/></Link>)}
                     <button onClick={() => setShowArchived(!showArchived)} className="btn-info" title={showArchived ? "Ocultar arquivados" : "Mostrar arquivados"}>
-                        {showArchived ? <IconArchiveOff/> : <IconArchive/>}
+                        {showArchived ? <IconArchiveOff/> : <IconArchive/>} {showArchived ? "Não arquivados" : "Arquivados"}
                     </button>
-                    {!showArchived && (<button onClick={handleOpenAddColumnModal} className="dashboard-add-btn-small" title="Adicionar nova coluna"><IconPlus /></button>)}
+
+                    {!showArchived && (
+                        <button
+                            onClick={handleOpenAddColumnModal}
+                            className="dashboard-add-btn-small"
+                            aria-label="Criar nova coluna"
+                        >
+                            <IconPlus stroke={2} /> <span>Nova coluna</span>
+                        </button>)}
+
+                    {!showArchived && (<Link to={`/board/${boardId}/calendar`} className="btn-icon" title="Visão de Calendário"><IconCalendar size={24}/></Link>)}
+
+                    <button onClick={() => dispatch(toggleMultiSelectMode())} className={`btn-icon ${isMultiSelectEnabled ? 'active' : ''}`} title="Selecionar múltiplos cartões">
+                        <IconCopyCheck size={24}/>
+                    </button>
                     <SettingsMenu/>
                 </div>
             </div>
@@ -232,10 +278,10 @@ export default function BoardPage() {
                     </div>
                 </div>
             )}
-            
-            <DndContext 
-                sensors={sensors} 
-                collisionDetection={closestCenter} 
+
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
                 onDragCancel={onDragCancel}
@@ -252,7 +298,7 @@ export default function BoardPage() {
                             </button>
                         </div>
                     ) : (
-                        <SortableContext items={board.columns.map(c => c.id)} strategy={horizontalListSortingStrategy}>
+                        <SortableContext items={board.columns.map(c => c.id)} strategy={horizontalListSortingStrategy} disabled={isMultiSelectEnabled}>
                             {board.columns.map(column => {
                                 const cardsToShow = showArchived
                                     ? column.cards.filter(card => card.isArchived)
@@ -272,6 +318,8 @@ export default function BoardPage() {
                                         onRemoveColumn={() => handleRemoveColumn(column.id)}
                                         onEditColumn={() => handleOpenEditColumnModal(column)}
                                         isArchiveView={showArchived}
+                                        isMultiSelectEnabled={isMultiSelectEnabled}
+                                        selectedCardIds={selectedCardIds}
                                     />
                                 );
                             })}
@@ -285,8 +333,28 @@ export default function BoardPage() {
                 </DragOverlay>
             </DndContext>
 
+            {isMultiSelectEnabled && selectedCardIds.length > 0 && (
+                <div className="multi-select-action-bar">
+                    <div className="selection-count">
+                        <span>{selectedCardIds.length}</span> {selectedCardIds.length === 1 ? 'cartão selecionado' : 'cartões selecionados'}
+                    </div>
+                    <div className="selection-actions">
+                        <button onClick={handleArchiveSelected} className="btn-secondary">
+                            <IconArchive size={18} />
+                        </button>
+                        <button onClick={handleDeleteSelected} className="btn-danger">
+                            <IconTrash size={18} />
+                        </button>
+                    </div>
+                    <button onClick={handleClearAndExitSelection} className="btn-icon close-selection-mode" title="Sair do modo de seleção">
+                        <IconX size={24} />
+                    </button>
+                </div>
+            )}
+
             <CardModal isOpen={isCardModalOpen} onClose={handleCloseCardModal} columnId={activeColumnId} card={editingCard} onDeleteCard={handleOpenDeleteCardModal} />
             <ColumnModal isOpen={isColumnModalOpen} onClose={handleCloseColumnModal} onSave={handleSaveColumn} column={editingColumn} />
+
             <Modal isOpen={isDeleteColumnModalOpen} onClose={handleCloseDeleteColumnModal}>
                 <h2 className="modal-title">Deletar coluna <i>"{columnToDelete?.title}"</i>?</h2>
                 <div className="modal-divider"></div>
@@ -299,6 +367,7 @@ export default function BoardPage() {
                     </div>
                 </div>
             </Modal>
+
             <Modal isOpen={isDeleteCardModalOpen} onClose={handleCloseDeleteCardModal}>
                 <h2 className="modal-title">Deletar cartão <i>"{cardToDelete?.title}"</i>?</h2>
                 <div className="modal-divider"></div>
@@ -311,6 +380,33 @@ export default function BoardPage() {
                     </div>
                 </div>
             </Modal>
+
+            <Modal isOpen={isArchiveMultiModalOpen} onClose={() => setIsArchiveMultiModalOpen(false)}>
+                <h2 className="modal-title">{showArchived ? "Desarquivar" : "Arquivar"} {selectedCardIds.length} {selectedCardIds.length === 1 ? "cartão" : "cartões"}?</h2>
+                <div className="modal-divider"></div>
+                <div className="delete-modal-form">
+                    <div className="delete-modal-icon"><IconArchive stroke={2} size={64} /></div>
+                    <p className="delete-modal-text">Os cartões selecionados serão movidos para o arquivo. Você poderá visualizá-los e restaurá-los depois.</p>
+                    <div className="modal-actions">
+                        <button type="button" className="btn-secondary" onClick={() => setIsArchiveMultiModalOpen(false)}>Cancelar</button>
+                        <button type="button" className="btn-primary" onClick={handleConfirmArchiveSelected}>Arquivar</button>
+                    </div>
+                </div>
+            </Modal>
+
+            <Modal isOpen={isDeleteMultiModalOpen} onClose={() => setIsDeleteMultiModalOpen(false)}>
+                <h2 className="modal-title">Deletar {selectedCardIds.length} {selectedCardIds.length === 1 ? "cartão" : "cartões"}?</h2>
+                <div className="modal-divider"></div>
+                <div className="delete-modal-form">
+                    <div className="delete-modal-icon"><IconAlertCircle stroke={2} size={64} /></div>
+                    <p className="delete-modal-text">Essa ação é irreversível! Os cartões selecionados serão excluídos permanentemente.</p>
+                    <div className="modal-actions">
+                        <button type="button" className="btn-secondary" onClick={() => setIsDeleteMultiModalOpen(false)}>Cancelar</button>
+                        <button type="button" className="btn-danger" onClick={handleConfirmDeleteSelected}>Deletar permanentemente</button>
+                    </div>
+                </div>
+            </Modal>
+
         </div>
     );
 }

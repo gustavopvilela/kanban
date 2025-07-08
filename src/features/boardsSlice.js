@@ -16,7 +16,9 @@ const boardsSlice = createSlice({
     initialState: {
         boards: initialBoardsState,
         columns: initialColumnsState,
-        cards: initialCardsState
+        cards: initialCardsState,
+        isMultiSelectEnabled: false,
+        selectedCardIds: [],
     },
     reducers: {
         setAllData (state, action) {
@@ -135,6 +137,7 @@ const boardsSlice = createSlice({
                 });
             }
         },
+
         addChecklistItem: (state, action) => {
             const { cardId, newItem } = action.payload;
             const card = state.cards.entities[cardId];
@@ -160,7 +163,51 @@ const boardsSlice = createSlice({
                 const newChecklist = card.checklist.filter(i => i.id !== itemId);
                 cardsAdapter.updateOne(state.cards, { id: cardId, changes: { checklist: newChecklist } });
             }
-        }
+        },
+
+        toggleMultiSelectMode: (state) => {
+            state.isMultiSelectEnabled = !state.isMultiSelectEnabled;
+            if (!state.isMultiSelectEnabled) {
+                state.selectedCardIds = [];
+            }
+        },
+        toggleCardSelection: (state, action) => {
+            const cardId = action.payload;
+            const index = state.selectedCardIds.indexOf(cardId);
+            if (index >= 0) {
+                state.selectedCardIds.splice(index, 1);
+            }
+            else {
+                state.selectedCardIds.push(cardId);
+            }
+        },
+        clearCardSelection: (state) => {
+            state.selectedCardIds = [];
+        },
+        archiveSelectedCards: (state) => {
+            const updates = state.selectedCardIds.map(id => {
+                const card = state.cards.entities[id];
+                return {
+                    id,
+                    changes: { isArchived: !card.isArchived }
+                };
+            });
+            cardsAdapter.updateMany(state.cards, updates);
+            state.selectedCardIds = [];
+            state.isMultiSelectEnabled = false;
+        },
+        deleteSelectedCards: (state) => {
+            const cardIdsToDelete = [...state.selectedCardIds];
+            Object.values(state.columns.entities).forEach(column => {
+                if (column.cards) {
+                    column.cards = column.cards.filter(id => !cardIdsToDelete.includes(id));
+                }
+            });
+
+            cardsAdapter.removeMany(state.cards, cardIdsToDelete);
+            state.selectedCardIds = [];
+            state.isMultiSelectEnabled = false;
+        },
     }
 });
 
@@ -180,7 +227,12 @@ export const {
     toggleArchiveCard,
     addChecklistItem,
     toggleChecklistItem,
-    deleteChecklistItem
+    deleteChecklistItem,
+    toggleMultiSelectMode,
+    toggleCardSelection,
+    clearCardSelection,
+    archiveSelectedCards,
+    deleteSelectedCards,
 } = boardsSlice.actions;
 
 export default boardsSlice.reducer;
