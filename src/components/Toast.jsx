@@ -6,7 +6,7 @@ export default function Toast ({ message, type = "warning", onClose, icon }) {
     useEffect(() => {
         const timer = setTimeout(() => {
             onClose();
-        }, 5000); // Fechará em 5 segundos
+        }, 5000); // Fechará em 2 segundos
 
         return () => {
             clearTimeout(timer);

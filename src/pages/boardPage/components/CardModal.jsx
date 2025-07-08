@@ -122,12 +122,11 @@ export default function CardModal({ isOpen, onClose, card, columnId, onDeleteCar
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <div className="card-modal-content">
-                <h2 className="modal-title">{isEditing ? "Editar Cartão" : "Criar Novo Cartão" }</h2>
+                <h2 className="modal-title">{isEditing ? "Editar cartão" : "Criar novo cartão" }</h2>
                 <div className="modal-divider"></div>
 
                 <form onSubmit={handleSave}>
-                    {/* ... campos de título, descrição, prioridade, etc ... */}
-                     <div className={formGroup}>
+                    <div className={formGroup}>
                         <label htmlFor="cardTitle">Título</label>
                         <input
                             type="text"
@@ -193,32 +192,31 @@ export default function CardModal({ isOpen, onClose, card, columnId, onDeleteCar
                         </div>
                     </div>
 
-                    <div className="modal-actions" style={{ justifyContent: 'space-between' }}>
-                        <div> {/* Container para os botões da esquerda */}
+                    <div className="modal-actions" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
                             {isEditing && (
                                 <>
                                     <button
                                         type="button"
-                                        className="btn-secondary"
+                                        className="btn-icon"
                                         onClick={handleArchiveToggle}
                                         title={card.isArchived ? "Desarquivar cartão" : "Arquivar cartão"}
                                     >
-                                        {card.isArchived ? <IconArchiveOff size={16}/> : <IconArchive size={16}/>}
+                                            {card.isArchived ? <IconArchiveOff size={22}/> : <IconArchive size={22}/>}
                                     </button>
-                                    {/* --- NOVO BOTÃO DE EXCLUSÃO --- */}
                                     <button
                                         type="button"
-                                        className="btn-danger"
-                                        onClick={() => onDeleteCard(card)} // Chama a função passada por prop
+                                        className="btn-icon btn-delete"
+                                        onClick={() => onDeleteCard(card)}
                                         style={{ marginLeft: '8px' }}
                                     >
-                                        <IconTrash size={16} />
+                                        <IconTrash size={22} />
                                     </button>
                                 </>
                             )}
                         </div>
                         <div> {/* Container para os botões da direita */}
-                            <button type="button" className="btn-secondary" onClick={onClose} style={{ marginRight: '8px' }}>Cancelar</button>
+                            <button type="button" className="btn-secondary cancel-btn" onClick={onClose} style={{ marginRight: '8px' }}>Cancelar</button>
                             {(!card || !card.isArchived) && (
                                 <button type="submit" className="btn-primary">Salvar</button>
                             )}

@@ -69,6 +69,9 @@ html.light {
     --info-border: #bfdbfe;
     --info-text: #1d4ed8;
     --info-icon-color: #3b82f6;
+
+    --btn-icon-danger-color: #ef4444;
+    --btn-icon-danger-hover-color: #fee2e2;
 }
 
 html.dark {
@@ -106,7 +109,7 @@ html.dark {
 
     /* Cores para danger */
     --danger-bg: #2e1515;
-    --danger-border: #5c1a1a;
+    --danger-border: #fecaca;
     --danger-text: #fee2e2;
     --danger-icon-color: #f87171;
 
@@ -115,6 +118,9 @@ html.dark {
     --info-border: #203360;
     --info-text: #dbeafe;
     --info-icon-color: #60a5fa;
+
+    --btn-icon-danger-color: #f87171;
+    --btn-icon-danger-hover-color: #450a0a;
 }
 
 .btn-primary {
@@ -145,7 +151,7 @@ html.dark {
     padding: 12px 20px;
     border-radius: var(--radius);
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     text-decoration: none;
@@ -159,6 +165,7 @@ html.dark {
     border-color: var(--secondary-color);
     transform: translateY(-1px);
     box-shadow: var(--shadow-sm);
+    color: #f9fafb;
 }
 
 .btn-info {

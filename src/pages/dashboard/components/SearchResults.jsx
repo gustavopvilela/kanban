@@ -38,7 +38,7 @@ const ResultItem = ({ result }) => {
                     )}
                     {result.type === 'card' && (
                         <p className="result-item-path">
-                            Em: {result.column.title} / <strong>{result.board.title}</strong>
+                            Em: {result.column.title} / <strong>{result.board.title}</strong> {result.item.isArchived ? '(Arquivado)' : ''}
                         </p>
                     )}
                 </div>

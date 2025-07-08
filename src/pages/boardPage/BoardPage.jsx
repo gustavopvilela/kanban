@@ -247,7 +247,10 @@ export default function BoardPage() {
                 <Link to="/" className="btn-secondary"><IconArrowLeft stroke={2} width={18} height={18} /> Página inicial</Link>
                 <h2>{board.title}</h2>
                 <div className="board-actions">
-                    <button onClick={() => setShowArchived(!showArchived)} className="btn-info" title={showArchived ? "Ocultar arquivados" : "Mostrar arquivados"}>
+                    <button onClick={() => {
+                        setShowArchived(!showArchived);
+                        if (isMultiSelectEnabled) { dispatch(toggleMultiSelectMode()); } /* O modo de seleção é desativado quando muda a visualização de arquivados para não arquivados e vice-versa */
+                    }} className="btn-info" title={showArchived ? "Ocultar arquivados" : "Mostrar arquivados"}>
                         {showArchived ? <IconArchiveOff/> : <IconArchive/>} {showArchived ? "Não arquivados" : "Arquivados"}
                     </button>
 
@@ -339,11 +342,11 @@ export default function BoardPage() {
                         <span>{selectedCardIds.length}</span> {selectedCardIds.length === 1 ? 'cartão selecionado' : 'cartões selecionados'}
                     </div>
                     <div className="selection-actions">
-                        <button onClick={handleArchiveSelected} className="btn-secondary">
-                            <IconArchive size={18} />
+                        <button onClick={handleArchiveSelected} className="btn-icon" title={`${showArchived ? 'Desarquivar' : 'Arquivar'} ${selectedCardIds.length} ${selectedCardIds.length === 1 ? 'cartão' : 'cartões'}.`}>
+                            <IconArchive size={22} />
                         </button>
-                        <button onClick={handleDeleteSelected} className="btn-danger">
-                            <IconTrash size={18} />
+                        <button onClick={handleDeleteSelected} className="btn-icon btn-delete" title={`Deletar ${selectedCardIds.length} ${selectedCardIds.length === 1 ? 'cartão' : 'cartões'}.`}>
+                            <IconTrash size={22} />
                         </button>
                     </div>
                     <button onClick={handleClearAndExitSelection} className="btn-icon close-selection-mode" title="Sair do modo de seleção">
@@ -376,7 +379,7 @@ export default function BoardPage() {
                     <p className="delete-modal-text">Essa ação é irreversível. O cartão será excluído permanentemente.</p>
                     <div className="modal-actions">
                         <button type="button" className="btn-secondary" onClick={handleCloseDeleteCardModal}>Cancelar</button>
-                        <button type="button" className="btn-danger" onClick={handleConfirmDeleteCard}>Deletar Cartão</button>
+                        <button type="button" className="btn-danger" onClick={handleConfirmDeleteCard}>Deletar cartão</button>
                     </div>
                 </div>
             </Modal>
@@ -385,11 +388,19 @@ export default function BoardPage() {
                 <h2 className="modal-title">{showArchived ? "Desarquivar" : "Arquivar"} {selectedCardIds.length} {selectedCardIds.length === 1 ? "cartão" : "cartões"}?</h2>
                 <div className="modal-divider"></div>
                 <div className="delete-modal-form">
-                    <div className="delete-modal-icon"><IconArchive stroke={2} size={64} /></div>
-                    <p className="delete-modal-text">Os cartões selecionados serão movidos para o arquivo. Você poderá visualizá-los e restaurá-los depois.</p>
+                    <div className="delete-modal-icon">
+                        {showArchived ?
+                            <IconArchiveOff stroke={2} size={64} /> :
+                            <IconArchive stroke={2} size={64} />}
+                    </div>
+                    <p className="delete-modal-text">
+                        {showArchived ?
+                            "Os cartões selecionados serão restaurados às colunas de visualização padrão. Você poderá voltar a fazer operações como editar com eles novamente." :
+                            "Os cartões selecionados serão movidos para o arquivo. Você poderá visualizá-los e restaurá-los depois."}
+                    </p>
                     <div className="modal-actions">
-                        <button type="button" className="btn-secondary" onClick={() => setIsArchiveMultiModalOpen(false)}>Cancelar</button>
-                        <button type="button" className="btn-primary" onClick={handleConfirmArchiveSelected}>Arquivar</button>
+                        <button type="button" className="btn-secondary cancel-btn" onClick={() => setIsArchiveMultiModalOpen(false)}>Cancelar</button>
+                        <button type="button" className="btn-primary" onClick={handleConfirmArchiveSelected}>{showArchived ? "Desarquivar" : "Arquivar"}</button>
                     </div>
                 </div>
             </Modal>
