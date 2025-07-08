@@ -1,6 +1,6 @@
 # Trabalho prático de Desenvolvimento Front-End: _Quadro Kanban Interativo_
 
-![Front-End](https://img.shields.io/badge/IFMG-Desenvolvimento%20Front--End-024e72)  [![React](https://img.shields.io/badge/React-19.1.0-759ed4)](https://www.python.org/)
+![Front-End](https://img.shields.io/badge/IFMG-Desenvolvimento%20Front--End-024e72)  [![React](https://img.shields.io/badge/React-19.1.0-759ed4)](https://react.dev/) [![Live Test](https://img.shields.io/badge/Live%20test-Clique%20aqui!-435898)](https://gustavopvilela.github.io/kanban/)
 
 ## Introdução
 Este trabalho foi desenvolvido pelos alunos Gustavo Henrique Pereira Vilela e Patrick Nunes Costa.
