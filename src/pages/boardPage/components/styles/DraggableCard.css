@@ -128,3 +128,52 @@
     align-items: center;
     gap: 0.35rem;
 }
+.card.selectable {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card.selectable:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.card.selected {
+    box-shadow: 0 0 4px 1px var(--primary-color);
+}
+
+.selection-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: var(--surface-color);
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Começa invisível e pequeno, e aparece quando o modo de seleção é ativado */
+    transform: scale(0.5);
+    opacity: 0;
+    transition: all 0.2s ease-out;
+}
+
+/* Quando o modo de seleção está ATIVO, o círculo cinza aparece */
+.card.selectable .selection-indicator {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Quando o cartão é SELECIONADO, o círculo muda de cor */
+.card.selected .selection-indicator {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white; /* Cor para o ícone de check */
+}
+
+/* Ajuste para o ícone no tema escuro */
+html.dark .card.selected .selection-indicator {
+    color: var(--background-color);
+}

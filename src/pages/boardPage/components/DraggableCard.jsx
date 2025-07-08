@@ -1,8 +1,10 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IconFlag, IconCalendar, IconChecklist, IconPencil } from '@tabler/icons-react';
+import {IconFlag, IconCalendar, IconChecklist, IconPencil, IconCircleCheck} from '@tabler/icons-react';
 import './styles/DraggableCard.css';
+import {toggleCardSelection} from "../../../features/boardsSlice.js";
+import {useDispatch} from "react-redux";
 
 const ChecklistProgress = ({ checklist }) => {
     // Continua a não mostrar nada se não houver checklist
@@ -60,7 +62,8 @@ const CardBadges = ({ card }) => {
     );
 };
 
-const DraggableCard = React.memo(({ card, onEdit }) => {
+const DraggableCard = React.memo(({ card, onEdit, isMultiSelectEnabled, isSelected }) => {
+    const dispatch = useDispatch();
     const {
         attributes,
         listeners,
@@ -74,6 +77,7 @@ const DraggableCard = React.memo(({ card, onEdit }) => {
             type: 'card',
             card,
         },
+        disabled: isMultiSelectEnabled,
     });
 
     const style = {
@@ -84,31 +88,46 @@ const DraggableCard = React.memo(({ card, onEdit }) => {
 
     const cardTitle = card.title || 'Cartão sem título';
 
+    const handleCardClick = () => {
+        if (isMultiSelectEnabled) {
+            dispatch(toggleCardSelection(card.id));
+        }
+    }
+
+    const cardClassName = `card ${isSelected ? 'selected' : ''} ${isMultiSelectEnabled ? 'selectable' : ''}`;
+
     return (
         <div
             ref={setNodeRef}
             style={style}
-            {...attributes}
-            {...listeners}
-            className="card"
+            {...(!isMultiSelectEnabled ? attributes : {})}
+            {...(!isMultiSelectEnabled ? listeners : {})}
+            onClick={handleCardClick}
+            className={cardClassName}
             data-priority={card.priority || 'medium'}
         >
+            {isMultiSelectEnabled && (
+                <div className="selection-indicator">
+                    {isSelected && <IconCircleCheck size={20} stroke={2.5} />}
+                </div>
+            )}
+
             <div className="card-content">
                 <p>{cardTitle}</p>
                 <CardBadges card={card} />
             </div>
-            <div className="card-footer">
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit();
-                    }}
-                    className="card-edit-btn"
-                    title="Editar cartão"
-                >
-                    <IconPencil size={16} />
-                </button>
-            </div>
+
+            {!isMultiSelectEnabled && (
+                <div className="card-footer">
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onEdit(); }}
+                        className="card-edit-btn"
+                        title="Editar cartão"
+                    >
+                        <IconPencil size={16} />
+                    </button>
+                </div>
+            )}
         </div>
     );
 });
